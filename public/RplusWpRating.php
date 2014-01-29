@@ -10,16 +10,8 @@
  */
 
 /**
- * Plugin class. This class should ideally be used to work with the
- * public-facing side of the WordPress site.
- *
- * If you're interested in introducing administrative or dashboard
- * functionality, then refer to `RplusWpRatingAdmin.php`
- *
- * @TODO: Rename this class to a proper name for your plugin.
- *
- * @package Plugin_Name
- * @author  Your Name <email@example.com>
+ * @package required-wp-rating
+ * @author  Stefan Pasch <stefan@required.ch>
  */
 class RplusWpRating {
 
@@ -68,6 +60,12 @@ class RplusWpRating {
 		// Load public-facing style sheet and JavaScript.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+        add_shortcode( 'rplus-rating', array( $this, 'rating_shortcode' ) );
+
+        add_action( 'wp_ajax_rplus_wp_rating_ajax_dorating', array( $this, 'ajax_dorating' ) );
+        add_action( 'wp_ajax_nopriv_rplus_wp_rating_ajax_dorating', array( $this, 'ajax_dorating' ) );
+        //
 
 	}
 
@@ -217,8 +215,6 @@ class RplusWpRating {
 	 */
 	private static function single_activate() {
 
-		// @TODO: Define activation functionality here
-
 	}
 
 	/**
@@ -227,8 +223,6 @@ class RplusWpRating {
 	 * @since    1.0.0
 	 */
 	private static function single_deactivate() {
-
-		// @TODO: Define deactivation functionality here
 
 	}
 
@@ -263,6 +257,40 @@ class RplusWpRating {
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery' ), self::VERSION );
+
+        wp_localize_script( $this->plugin_slug . '-plugin-script', 'RplusWpRatingAjax', array(
+            // URL to wp-admin/admin-ajax.php to process the request
+            'ajaxurl' => admin_url( 'admin-ajax.php' ),
+
+            // nonces
+            'nonce_vote' => wp_create_nonce( 'rplus-do-rating' )
+        ));
 	}
+
+    /**
+     * Print rating controls
+     *
+     * @param $atts
+     * @return string
+     */
+    public function rating_shortcode( $atts ) {
+
+        global $post;
+
+        $output  = '<a href="#" class="rplus-rating-dorating" data-type="positive" data-post="<?php the_ID(); ?>">thumb up</a>';
+        $output .= '<a href="#" class="rplus-rating-dorating" data-type="negative" data-post="<?php the_ID(); ?>">thumb down</a>';
+
+        return $output;
+    }
+
+    public function ajax_dorating() {
+
+        // check nonce
+
+        // check if user already voted (cookies)
+
+        // etc.
+
+    }
 
 }
