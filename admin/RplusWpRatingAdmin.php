@@ -55,9 +55,15 @@ class RplusWpRatingAdmin {
 		// Add the options page and menu item.
 		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
 
+        // Add the options for the options page
+        add_action( 'admin_init', array( $this, 'add_plugin_admin_options' ) );
+
 		// Add an action link pointing to the options page.
 		$plugin_basename = plugin_basename( plugin_dir_path( __DIR__ ) . $this->plugin_slug . '.php' );
 		add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
+
+        // add metaboxes with infos about the ratings
+        add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 
 	}
 
@@ -141,8 +147,52 @@ class RplusWpRatingAdmin {
 	 * @since    1.0.0
 	 */
 	public function display_plugin_admin_page() {
-		include_once( 'views/admin.php' );
+
+    	include_once( 'views/admin.php' );
+
 	}
+
+    /**
+     * Add options for the options page
+     *
+     * @since   1.0.0
+     */
+    public function add_plugin_admin_options() {
+
+        register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_posttypes_select' );
+
+        add_settings_section(
+            'rplus_ratings_options_posttypes',
+            __( 'Display rating controls', 'required-wp-rating' ),
+            function() {
+                _e( 'Show rating controls below each post_type\'s content. The controls can be styled using css. See the plugin page for more info\'s.', 'required-wp-rating' );
+            },
+            $this->plugin_slug
+        );
+
+        add_settings_field(
+            'rplus_ratings_options_posttypes_select',
+            __( 'Post Types', 'required-wp-rating' ),
+            function() {
+                $selected = get_option( 'rplus_ratings_options_posttypes_select' );
+                foreach ( get_post_types( array( 'public' => true ) ) as $post_type ) {
+                    $post_type_labels = get_post_type_labels( get_post_type_object( $post_type ) );
+                    ?>
+                    <p>
+                    <label for="rplus_ratings_options_posttypes_select_<?php echo $post_type; ?>">
+                        <input type="hidden" name="rplus_ratings_options_posttypes_select[<?php echo $post_type; ?>]" value="0">
+                        <input name="rplus_ratings_options_posttypes_select[<?php echo $post_type; ?>]" type="checkbox" id="rplus_ratings_options_posttypes_select_<?php echo $post_type; ?>" value="1" <?php echo ( (is_array($selected) && isset( $selected[ $post_type ] ) && $selected[ $post_type ] == '1') ? 'checked' : '' ); ?>>
+                        <?php echo $post_type_labels->name; ?>
+                    </label>
+                    </p>
+                    <?php
+
+                }
+            },
+            $this->plugin_slug,
+            'rplus_ratings_options_posttypes'
+        );
+    }
 
 	/**
 	 * Add settings action link to the plugins page.
@@ -159,5 +209,49 @@ class RplusWpRatingAdmin {
 		);
 
 	}
+
+    /**
+     * Add meta boxes to activated post_types
+     */
+    public function add_meta_boxes() {
+
+        // get post_type_select option and check for current post_type
+        $selected = get_option( 'rplus_ratings_options_posttypes_select' );
+
+        if ( ! is_array( $selected ) ) {
+            return;
+        }
+
+        foreach ( $selected as $post_type => $active ) {
+
+            // ignore post types that are not activated
+            if ( $active != '1' ) continue;
+
+            add_meta_box(
+                'required-wp-rating-statistics',
+                __( 'Ratings', 'required-wp-rating' ),
+                array( $this, 'output_meta_box' ),
+                $post_type,
+                'side'
+            );
+
+        }
+
+    }
+
+    /**
+     * Output meta box content with rating statistics on backend edit forms
+     *
+     * @param $post
+     */
+    public function output_meta_box( $post ) {
+
+        $positives = get_post_meta( $post->ID, 'rplus_ratings_positive', true );
+        $negatives = get_post_meta( $post->ID, 'rplus_ratings_negative', true );
+
+        printf( __( '<p>Positive: %d</p>', 'required-wp-rating' ), $positives );
+        printf( __( '<p>Negative: %d</p>', 'required-wp-rating' ), $negatives );
+
+    }
 
 }

@@ -14,9 +14,17 @@
 ?>
 
 <div class="wrap">
-
 	<h2><?php echo esc_html( get_admin_page_title() ); ?></h2>
 
-	<!-- @TODO: Provide markup for your options page here. -->
+    <form method="post" action="options.php">
+        <?php
+
+        settings_fields( 'required-wp-rating-options' );
+
+        do_settings_sections( 'required-wp-rating' );
+
+        ?>
+        <?php submit_button(); ?>
+    </form>
 
 </div>
