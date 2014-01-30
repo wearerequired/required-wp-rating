@@ -43,6 +43,20 @@ class RplusWpRating {
 	 */
 	protected static $instance = null;
 
+    /**
+     * The cookie var where the votes will be saved in
+     *
+     * @var string
+     */
+    private $cookie_key = 'rpluswprating_votes';
+
+    /**
+     * Custom PostType name
+     *
+     * @var string
+     */
+    private $post_type = 'rplus_rating';
+
 	/**
 	 * Initialize the plugin by setting localization and loading public scripts
 	 * and styles.
@@ -65,9 +79,46 @@ class RplusWpRating {
 
         add_action( 'wp_ajax_rplus_wp_rating_ajax_dorating', array( $this, 'ajax_dorating' ) );
         add_action( 'wp_ajax_nopriv_rplus_wp_rating_ajax_dorating', array( $this, 'ajax_dorating' ) );
-        //
+
+        $this->register();
+
+        add_filter( 'the_content', array( $this, 'add_rating_controls_to_content' ) );
 
 	}
+
+    /**
+     * Registers the custom post type for saving the ratings and related data
+     */
+    private function register() {
+
+        /**
+         * Custom Post Type Args
+         * @var array
+         */
+        $args = apply_filters( 'rplus_wp_rating/filter/types/rating/args',
+            array(
+                'labels' =>                 array(),
+                'hierarchical' =>           false,
+                'public' =>                 false,
+                'show_ui' =>                false,
+                'show_in_menu' =>           false,
+                'show_in_nav_menus' =>      false,
+                'publicly_queryable' =>     false,
+                'exclude_from_search' =>    true,
+                'has_archive' =>            false,
+                'query_var' =>              false,
+                'can_export' =>             false,
+                'capability_type' =>        'post',
+                'rewrite' =>                false
+            )
+        );
+
+        /**
+         * Register our Custom Post Type with WordPress
+         */
+        register_post_type( $this->post_type, $args );
+
+    }
 
 	/**
 	 * Return the plugin slug.
@@ -83,7 +134,7 @@ class RplusWpRating {
 	 * Return an instance of this class.
 	 *
 	 * @since     1.0.0
-	 * @return    object    A single instance of this class.
+	 * @return    RplusWpRating    A single instance of this class.
 	 */
 	public static function get_instance() {
 
@@ -275,22 +326,136 @@ class RplusWpRating {
      */
     public function rating_shortcode( $atts ) {
 
-        global $post;
+        return $this->get_rating_controls();
 
-        $output  = '<a href="#" class="rplus-rating-dorating" data-type="positive" data-post="<?php the_ID(); ?>">thumb up</a>';
-        $output .= '<a href="#" class="rplus-rating-dorating" data-type="negative" data-post="<?php the_ID(); ?>">thumb down</a>';
-
-        return $output;
     }
 
+    /**
+     * Get the rating controls.
+     * @return string
+     */
+    public function get_rating_controls() {
+
+        global $post;
+
+        $positives = get_post_meta( get_the_ID(), 'rplus_ratings_positive', true );
+        $negatives = get_post_meta( get_the_ID(), 'rplus_ratings_negative', true );
+
+        $output = '';
+
+        $output .= '<div class="rplus-rating-controls">';
+        $output .= '<a href="#" class="rplus-rating-dorating rplus-rating-positive" data-type="positive" data-post="'.get_the_ID().'"> Thumb up <span>'.$positives.'</span></a>';
+        $output .= '<a href="#" class="rplus-rating-dorating rplus-rating-negative" data-type="negative" data-post="'.get_the_ID().'"> Thumd down <span>'.$negatives.'</span></a>';
+        $output .= '</div>';
+
+        return $output;
+
+    }
+
+    /**
+     * Add new rating entry
+     *
+     * @param $post_id
+     * @param $type
+     * @return int|WP_Error
+     */
+    private function add_rating( $post_id, $type ) {
+
+        // add new vote (post type entry)
+        $rating_id = wp_insert_post( array(
+            'post_title' => $type . ': ' . $post_id,
+            'post_type' => $this->post_type
+        ) );
+
+        update_post_meta( $post_id, 'vote_for_post_id', $post_id );
+        update_post_meta( $post_id, 'vote_type', $type );
+        update_post_meta( $post_id, 'vote_ip', $_SERVER['REMOTE_ADDR'] );
+        update_post_meta( $post_id, 'vote_browser', $_SERVER['USER_AGENT'] );
+
+        return $rating_id;
+    }
+
+    /**
+     * Ajax vote action
+     */
     public function ajax_dorating() {
 
         // check nonce
+        check_ajax_referer( 'rplus-do-rating', '_token' );
+
+        $existing_votes = isset( $_COOKIE[ $this->cookie_key ] ) ? explode( ',', $_COOKIE[ $this->cookie_key ] ) : array();
+        $post_id = intval( $_POST['post_id'] );
+        $type = in_array( $_POST['type'], array( 'positive', 'negative' ) ) ? $_POST['type'] : false;
 
         // check if user already voted (cookies)
+        if ( in_array( $post_id, $existing_votes ) ) {
+            wp_send_json_error( __( 'You\'ve already voted, sorry.', 'required-wp-rating' ) );
+        }
 
-        // etc.
+        // proceed when we have a correct type
+        if ( $type ) {
 
+            $this->add_rating( $post_id, $type );
+
+            // update votes_$type on current post (increment)
+            $current_votes = get_post_meta( $post_id, 'rplus_ratings_' . $type, true );
+            update_post_meta( $post_id, 'rplus_ratings_' . $type, ( $current_votes + 1 ) );
+
+            // add current post_id to cookie of user
+            array_push( $existing_votes, $post_id );
+            $cookie_votes = implode( ',',  $existing_votes );
+
+            setcookie(
+                $this->cookie_key,
+                $cookie_votes,
+                time() + YEAR_IN_SECONDS,
+                COOKIEPATH,
+                COOKIE_DOMAIN
+            );
+
+            // send response
+            wp_send_json_success( array(
+                'positives' => get_post_meta( $post_id, 'rplus_ratings_positive', true ),
+                'negatives' => get_post_meta( $post_id, 'rplus_ratings_negative', true ),
+                'message'   => __( 'Your vote was saved.', 'required-wp-rating' )
+            ) );
+        }
+
+        wp_send_json_error( __( 'Technical hiccups. Sorry.', 'required-wp-rating' ) );
+        exit;
+
+    }
+
+    /**
+     * Add rating controls for activated post_types (activation via plugin options backend)
+     *
+     * @param $content
+     * @return mixed
+     */
+    public function add_rating_controls_to_content( $content ) {
+
+        global $post;
+
+        // don't do anything when we're not a post
+        if ( ! is_object( $post ) || ( get_class( $post ) != 'WP_Post' ) ) {
+
+            return $content;
+
+        }
+
+        $current_post_type = get_post_type( $post->ID );
+
+        // get post_type_select option and check for current post_type
+        $selected = get_option( 'rplus_ratings_options_posttypes_select' );
+
+        if ( is_array( $selected ) && isset( $selected[ $current_post_type ] ) && $selected[ $current_post_type ] == '1' ) {
+
+            // append the rating controls to the content
+            $content .= $this->get_rating_controls();
+
+        }
+
+        return $content;
     }
 
 }
