@@ -160,12 +160,14 @@ class RplusWpRatingAdmin {
     public function add_plugin_admin_options() {
 
         register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_posttypes_select' );
+        register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_positive' );
+        register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_negative' );
 
         add_settings_section(
             'rplus_ratings_options_posttypes',
             __( 'Display rating controls', 'required-wp-rating' ),
             function() {
-                _e( 'Show rating controls below each post_type\'s content. The controls can be styled using css. See the plugin page for more info\'s.', 'required-wp-rating' );
+                _e( 'Show rating controls below each post_type\'s content. The controls can be styled using css. See the plugin page for more info\'s. When you don\'t select any post type, the controls won\'t be displayed, but you can add them with the shortcode <strong>[rplus-rating]</strong>.', 'required-wp-rating' );
             },
             $this->plugin_slug
         );
@@ -191,6 +193,47 @@ class RplusWpRatingAdmin {
             },
             $this->plugin_slug,
             'rplus_ratings_options_posttypes'
+        );
+
+        add_settings_section(
+            'rplus_ratings_options_feedback',
+            __( 'Show feedback-boxes', 'required-wp-rating' ),
+            function() {
+                _e( 'When activated, you\'ll see a textarea when you do a rating where you can add a feedback before sending.', 'required-wp-rating' );
+            },
+            $this->plugin_slug
+        );
+
+        add_settings_field(
+            'rplus_ratings_options_feedback_positive',
+            __( 'Positive', 'required-wp-rating' ),
+            function() {
+                ?>
+                <label for="rplus_ratings_options_feedback_positive">
+                    <input type="hidden" name="rplus_ratings_options_feedback_positive" value="0">
+                    <input name="rplus_ratings_options_feedback_positive" type="checkbox" id="rplus_ratings_options_feedback_positive" value="1" <?php checked( '1', get_option('rplus_ratings_options_feedback_positive') ); ?>>
+                    <?php _e( 'Yes, show a textarea for collecting feedback for a positive rating.', 'required-wp-rating' ); ?>
+                </label>
+                <?php
+            },
+            $this->plugin_slug,
+            'rplus_ratings_options_feedback'
+        );
+
+        add_settings_field(
+            'rplus_ratings_options_feedback_negative',
+            __( 'Negative', 'required-wp-rating' ),
+            function() {
+                ?>
+                <label for="rplus_ratings_options_feedback_negative">
+                    <input type="hidden" name="rplus_ratings_options_feedback_negative" value="0">
+                    <input name="rplus_ratings_options_feedback_negative" type="checkbox" id="rplus_ratings_options_feedback_negative" value="1" <?php checked( '1', get_option('rplus_ratings_options_feedback_negative') ); ?>>
+                    <?php _e( 'Yes, show a textarea for collecting feedback for a negative rating.', 'required-wp-rating' ); ?>
+                </label>
+            <?php
+            },
+            $this->plugin_slug,
+            'rplus_ratings_options_feedback'
         );
     }
 
@@ -232,7 +275,7 @@ class RplusWpRatingAdmin {
                 __( 'Ratings', 'required-wp-rating' ),
                 array( $this, 'output_meta_box' ),
                 $post_type,
-                'side'
+                'normal'
             );
 
         }
@@ -249,8 +292,33 @@ class RplusWpRatingAdmin {
         $positives = get_post_meta( $post->ID, 'rplus_ratings_positive', true );
         $negatives = get_post_meta( $post->ID, 'rplus_ratings_negative', true );
 
-        printf( __( '<p>Positive: %d</p>', 'required-wp-rating' ), $positives );
-        printf( __( '<p>Negative: %d</p>', 'required-wp-rating' ), $negatives );
+        printf( __( '<p><strong>Positive: </strong>%d, <strong>Negative: </strong>%d</p>', 'required-wp-rating' ), $positives, $negatives );
+
+        // get all ratings for this post and show infos as a table
+        $args = array(
+            'post_type' => RplusWpRating::get_instance()->get_post_type(),
+            'meta_query' => array(
+                array(
+                    'key' => 'vote_for_post_id',
+                    'value' => $post->ID,
+                    'compare' => '='
+                )
+            )
+        );
+
+        $the_query = new WP_Query( $args );
+
+        if ( $the_query->have_posts() ) {
+            while ( $the_query->have_posts() ) {
+                $the_query->the_post();
+                // todo: show infos, incl. custom fields (feedback)
+
+            }
+        } else {
+            // no posts found
+        }
+        /* Restore original Post Data */
+        wp_reset_postdata();
 
     }
 

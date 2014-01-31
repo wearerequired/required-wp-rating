@@ -3,6 +3,15 @@
 
 	$(function () {
 
+        /**
+         * Show rating feedback form
+         */
+        $('.rplus-rating-toggle-form').on('click', function(e) {
+            e.preventDefault();
+            $(this).next().fadeIn();
+            return false;
+        });
+
         var rplus_xhr = false;
 
         $('.rplus-rating-dorating').on('click', function(e) {
@@ -22,6 +31,14 @@
                 };
 
             rplus_xhr = true;
+
+            // check if feedback form exist, when yes, add data to request
+            if ( $(this).data('form') == true ) {
+                var $feedback = $('.rplus-rating-'+$(this).data('type')+'-form textarea');
+                if ( $feedback ) {
+                    data.feedback = $feedback.val();
+                }
+            }
 
             $.post( RplusWpRatingAjax.ajaxurl, data, function( response ) {
 

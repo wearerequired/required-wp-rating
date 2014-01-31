@@ -87,6 +87,15 @@ class RplusWpRating {
 	}
 
     /**
+     * Get post type name of custom post type
+     *
+     * @return string
+     */
+    public function get_post_type() {
+        return $this->post_type;
+    }
+
+    /**
      * Registers the custom post type for saving the ratings and related data
      */
     private function register() {
@@ -341,12 +350,58 @@ class RplusWpRating {
         $positives = get_post_meta( get_the_ID(), 'rplus_ratings_positive', true );
         $negatives = get_post_meta( get_the_ID(), 'rplus_ratings_negative', true );
 
-        $output = '';
+        $textarea_positive = get_option('rplus_ratings_options_feedback_positive');
+        $textarea_negative = get_option('rplus_ratings_options_feedback_negative');
 
-        $output .= '<div class="rplus-rating-controls">';
-        $output .= '<a href="#" class="rplus-rating-dorating rplus-rating-positive" data-type="positive" data-post="'.get_the_ID().'"> Thumb up <span>'.$positives.'</span></a>';
-        $output .= '<a href="#" class="rplus-rating-dorating rplus-rating-negative" data-type="negative" data-post="'.get_the_ID().'"> Thumd down <span>'.$negatives.'</span></a>';
-        $output .= '</div>';
+        $form_positive = ( $textarea_positive == '1' );
+        $form_negative = ( $textarea_negative == '1' );
+
+        $button_positive = '<button class="rplus-rating-dorating rplus-rating-positive" data-type="positive" data-post="'.get_the_ID().'">Thumb up <span>'.$positives.'</span></button>';
+        $button_negative = '<button class="rplus-rating-dorating rplus-rating-negative" data-type="negative" data-post="'.get_the_ID().'">Thumb down <span>'.$negatives.'</span></button>';
+        ob_start();
+        ?>
+
+        <div class="rplus-rating-controls">
+            <div class="rplus-rating-positive-container">
+                <?php if ( $form_positive ) : ?>
+                    <button class="rplus-rating-toggle-form" data-type="positive" data-post="<?php the_ID(); ?>">
+                        Thumb up
+                        <span><?php echo $positives; ?></span>
+                    </button>
+                    <div class="rplus-rating-positive-form" style="display: none;">
+                        <?php if ( isset( $textarea_positive ) && $textarea_positive == '1' ) : ?>
+                            <textarea name="rplus_rating_feedback_positive"></textarea>
+                        <?php endif; ?>
+
+                        <button class="rplus-rating-dorating rplus-rating-positive" data-form="true" data-type="positive" data-post="<?php the_ID(); ?>"><?php _e( 'Send feedback', 'required-wp-rating' ); ?></button>
+                    </div>
+                <?php else : ?>
+                    <?php echo $button_positive; ?>
+                <?php endif; ?>
+            </div>
+
+            <div class="rplus-rating-negative-container">
+                <?php if ( $form_negative ) : ?>
+                    <button class="rplus-rating-toggle-form" data-type="negative">
+                        Thumb down
+                        <span><?php echo $negatives; ?></span>
+                    </button>
+                    <div class="rplus-rating-negative-form" style="display: none;">
+                        <?php if ( isset( $textarea_negative ) && $textarea_negative == '1' ) : ?>
+                            <textarea name="rplus_rating_feedback_negative"></textarea>
+                        <?php endif; ?>
+
+                        <button class="rplus-rating-dorating rplus-rating-negative" data-form="true" data-type="negative" data-post="<?php the_ID(); ?>"><?php _e( 'Send feedback', 'required-wp-rating' ); ?></button>
+                    </div>
+                <?php else : ?>
+                    <?php echo $button_negative; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <?php
+        $output = ob_get_contents();
+        ob_clean();
 
         return $output;
 
@@ -367,10 +422,16 @@ class RplusWpRating {
             'post_type' => $this->post_type
         ) );
 
-        update_post_meta( $post_id, 'vote_for_post_id', $post_id );
-        update_post_meta( $post_id, 'vote_type', $type );
-        update_post_meta( $post_id, 'vote_ip', $_SERVER['REMOTE_ADDR'] );
-        update_post_meta( $post_id, 'vote_browser', $_SERVER['USER_AGENT'] );
+        update_post_meta( $rating_id, 'vote_for_post_id', $post_id );
+        update_post_meta( $rating_id, 'vote_type', $type );
+        update_post_meta( $rating_id, 'vote_ip', $_SERVER['REMOTE_ADDR'] );
+        update_post_meta( $rating_id, 'vote_browser', $_SERVER['USER_AGENT'] );
+
+        // check for feedback textarea
+        $feedback = get_option( 'rplus_ratings_options_feedback_' . $type );
+        if ( $feedback == '1' && isset( $_POST['feedback'] ) ) {
+            update_post_meta( $rating_id, 'vote_feedback', $_POST['feedback'] );
+        }
 
         return $rating_id;
     }
@@ -389,7 +450,7 @@ class RplusWpRating {
 
         // check if user already voted (cookies)
         if ( in_array( $post_id, $existing_votes ) ) {
-            wp_send_json_error( __( 'You\'ve already voted, sorry.', 'required-wp-rating' ) );
+//            wp_send_json_error( __( 'You\'ve already voted, sorry.', 'required-wp-rating' ) );
         }
 
         // proceed when we have a correct type
@@ -438,9 +499,12 @@ class RplusWpRating {
 
         // don't do anything when we're not a post
         if ( ! is_object( $post ) || ( get_class( $post ) != 'WP_Post' ) ) {
-
             return $content;
+        }
 
+        // don't add controls when we're not on a single or page site
+        if ( ! is_single() && ! is_page() ) {
+            return $content;
         }
 
         $current_post_type = get_post_type( $post->ID );
