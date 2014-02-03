@@ -65,7 +65,78 @@ class RplusWpRatingAdmin {
         // add metaboxes with infos about the ratings
         add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 
-	}
+        $this->change_admin_columns();
+
+    }
+
+    /**
+     * Add filters to selected post types to changes admin columns and content
+     */
+    private function change_admin_columns() {
+
+        // get post_type_select option and check for current post_type
+        $selected = get_option( 'rplus_ratings_options_posttypes_select' );
+
+        if ( ! is_array( $selected ) ) {
+            return;
+        }
+
+        foreach ( $selected as $post_type => $active ) {
+
+            // ignore post types that are not activated
+            if ( $active != '1' ) continue;
+
+            // in case for attachments, the correct filter name should be media
+            $post_type = str_replace( 'attachment', 'media', $post_type );
+
+            // modify admin list columns
+            add_filter( "manage_edit-{$post_type}_columns", array( $this, 'admin_edit_columns' ) );
+
+            // fill custom columns
+            add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'admin_manage_columns' ), 10, 2 );
+
+        }
+
+    }
+
+    /**
+     * WP-Admin Columns displayed for selected post types
+     *
+     * @param  array    $columns    Array of default columns
+     * @return array    $columns    Modified array of columns
+     */
+    public function admin_edit_columns( $columns ) {
+
+        $columns['rplusrating'] = __( 'Ratings', 'required-wp-rating' );
+
+        return $columns;
+
+    }
+
+    /**
+     * WP-Admin Columns content displayed for selected post types
+     *
+     * @param  string   $column     Name of the column defined in $this->admin_edit_columns();
+     * @param  int      $post_id    WP_Post ID
+     * @return string               Content for the columns
+     */
+    public function admin_manage_columns( $column, $post_id ) {
+
+        switch ( $column ) {
+
+            // Display rating infos
+            case 'rplusrating':
+                $positives = get_post_meta( $post_id, 'rplus_ratings_positive', true );
+                $negatives = get_post_meta( $post_id, 'rplus_ratings_negative', true );
+                printf( __( '<strong>Positive: </strong>%d<br><strong>Negative: </strong>%d', 'required-wp-rating' ), $positives, $negatives );
+                break;
+
+            // Don't show anything by default
+            default:
+                break;
+        }
+
+    }
 
 	/**
 	 * Return an instance of this class.
