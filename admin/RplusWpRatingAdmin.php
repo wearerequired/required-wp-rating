@@ -292,7 +292,12 @@ class RplusWpRatingAdmin {
         $positives = get_post_meta( $post->ID, 'rplus_ratings_positive', true );
         $negatives = get_post_meta( $post->ID, 'rplus_ratings_negative', true );
 
-        printf( __( '<p><strong>Positive: </strong>%d, <strong>Negative: </strong>%d</p>', 'required-wp-rating' ), $positives, $negatives );
+        echo "<p>";
+        printf( __( '<strong>Positive: </strong>%d, <strong>Negative: </strong>%d.', 'required-wp-rating' ), $positives, $negatives );
+        echo ' <a href="#" onclick="document.getElementById(\'rplus-wp-rating-details-container-'.$post->ID.'\').style.display=\'block\'; return false;">'.__('Show Details', 'required-wp-rating').'</a>';
+        echo "</p>";
+
+        echo '<div id="rplus-wp-rating-details-container-'.$post->ID.'" style="display: none;"><hr>';
 
         // get all ratings for this post and show infos as a table
         $args = array(
@@ -311,12 +316,25 @@ class RplusWpRatingAdmin {
         if ( $the_query->have_posts() ) {
             while ( $the_query->have_posts() ) {
                 $the_query->the_post();
-                // todo: show infos, incl. custom fields (feedback)
+
+                echo '<p>';
+                printf( __( '<strong>%s</strong> on <strong>%s</strong>', 'required-wp-rating' ), ucfirst( get_post_meta( get_the_ID(), 'vote_type', true ) ), get_the_date() );
+
+                $feedback = get_post_meta( get_the_ID(), 'vote_feedback', true );
+                if ( ! empty( $feedback ) && $feedback != 'null' ) {
+                    echo '<br>';
+                    _e( '<strong>Feedback:</strong> ', 'required-wp-rating');
+                    echo $feedback;
+                }
+                echo "</p><hr>";
 
             }
         } else {
             // no posts found
         }
+
+        echo '</div>';
+
         /* Restore original Post Data */
         wp_reset_postdata();
 
