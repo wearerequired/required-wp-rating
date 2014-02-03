@@ -450,7 +450,7 @@ class RplusWpRating {
 
         // check if user already voted (cookies)
         if ( in_array( $post_id, $existing_votes ) ) {
-//            wp_send_json_error( __( 'You\'ve already voted, sorry.', 'required-wp-rating' ) );
+            wp_send_json_error( __( 'You\'ve already made your rating for this page.', 'required-wp-rating' ) );
         }
 
         // proceed when we have a correct type
