@@ -1,9 +1,9 @@
 # required+ wp rating
-Contributors: (this should be a list of wordpress.org userids)
-Tags: rating
-Stable tag: 1.0.0
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+**Contributors**: [hubeRsen](https://github.com/hubeRsen), [neverything](https://github.com/neverything)
+**Tags:** rating
+**Stable tag:** 1.0.0
+**License:** GPLv2 or later
+**License URI:** http://www.gnu.org/licenses/gpl-2.0.html
 
 WordPress plugin to make ratings (with optional comments) on every post / page.
 
