@@ -13,7 +13,7 @@ WordPress plugin to make ratings (with optional comments) on every post / page.
 
 # Description
 
-# Hooks & Filters
+# Customisation: Hooks & Filters
 ## Sending feedback action
 You can add custom code, when a feedback is sent for a ratings. Example code below
 ```php
@@ -28,3 +28,6 @@ add_action( 'rplus_wp_rating_send_feedback', function( $rating_id, $feedback, $p
 # Updates
 
 This plugin supports the [GitHub Updater](https://github.com/afragen/github-updater) plugin, so if you install that, this plugin becomes automatically updateable direct from GitHub. Any submission to WP.org repo will make this redundant.
+
+# required+
+[required+](http://required.ch) is a network of experienced web professionals from Switzerland and Germany. We focus on Interaction Design, Mobile Web, WordPress and some other things.
