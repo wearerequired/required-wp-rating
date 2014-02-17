@@ -80,6 +80,9 @@ class RplusWpRating {
         add_action( 'wp_ajax_rplus_wp_rating_ajax_dorating', array( $this, 'ajax_dorating' ) );
         add_action( 'wp_ajax_nopriv_rplus_wp_rating_ajax_dorating', array( $this, 'ajax_dorating' ) );
 
+        add_action( 'wp_ajax_rplus_wp_rating_ajax_dofeedback', array( $this, 'ajax_dofeedback' ) );
+        add_action( 'wp_ajax_nopriv_rplus_wp_rating_ajax_dofeedback', array( $this, 'ajax_dofeedback' ) );
+
         $this->register();
 
         add_filter( 'the_content', array( $this, 'add_rating_controls_to_content' ) );
@@ -350,19 +353,27 @@ class RplusWpRating {
         $positives = get_post_meta( get_the_ID(), 'rplus_ratings_positive', true );
         $negatives = get_post_meta( get_the_ID(), 'rplus_ratings_negative', true );
 
-        $textarea_positive = get_option('rplus_ratings_options_feedback_positive');
-        $textarea_negative = get_option('rplus_ratings_options_feedback_negative');
-
-        $form_positive = ( $textarea_positive == '1' );
-        $form_negative = ( $textarea_negative == '1' );
-
         $button_positive = '<button class="rplus-rating-dorating rplus-rating-positive" data-type="positive" data-post="'.get_the_ID().'">Thumb up <span>'.$positives.'</span></button>';
         $button_negative = '<button class="rplus-rating-dorating rplus-rating-negative" data-type="negative" data-post="'.get_the_ID().'">Thumb down <span>'.$negatives.'</span></button>';
+
+        $btn_label_positive = str_replace( '{count}', '<span class="rating-count-positive">' . $positives . '</span>', get_option( 'rplus_ratings_options_btn_label_positive' ) );
+        $btn_label_negative = str_replace( '{count}', '<span class="rating-count-negative">' . $negatives . '</span>', get_option( 'rplus_ratings_options_btn_label_negative' ) );
+
+        $title = get_option( 'rplus_ratings_options_title' );
         ob_start();
         ?>
 
         <div class="rplus-rating-controls">
-            <div class="rplus-rating-positive-container">
+
+            <?php if ( ! empty( $title ) ) : ?>
+                <h3><?php echo $title; ?></h3>
+            <?php endif; ?>
+            <p class="button-group">
+                <a href="#" class="button thumbs-up rplus-rating-dorating" data-type="positive" data-post="<?php the_ID(); ?>"><span class="icon-thumbs-up"></span> <?php echo $btn_label_positive; ?></a>
+                <a href="#" class="button thumbs-down rplus-rating-dorating" data-type="negative" data-post="<?php the_ID(); ?>"><span class="icon-thumbs-down"></span> <?php echo $btn_label_negative; ?></a>
+            </p>
+
+            <!-- div class="rplus-rating-positive-container">
                 <?php if ( $form_positive ) : ?>
                     <button class="rplus-rating-toggle-form" data-type="positive" data-post="<?php the_ID(); ?>">
                         Thumb up
@@ -396,7 +407,7 @@ class RplusWpRating {
                 <?php else : ?>
                     <?php echo $button_negative; ?>
                 <?php endif; ?>
-            </div>
+            </div -->
         </div>
 
         <?php
@@ -405,6 +416,42 @@ class RplusWpRating {
 
         return $output;
 
+    }
+
+    /**
+     * Get form for adding feedbacks to rating
+     *
+     * @param $rating_id
+     * @param $type
+     * @return string
+     */
+    private function get_rating_feedbackform( $rating_id, $type ) {
+
+        $description = get_option( 'rplus_ratings_options_feedback_positive_descr' );
+
+        ob_start(); ?>
+
+        <div class="feedback-form <?php echo $type; ?>">
+            <?php if ( ! empty( $description ) ) : ?>
+                <p>
+                    <?php echo $description; ?>
+                    Das freut uns sehr! Wir helfen gerne und hoffen immer, dass unsere Erklärungen Ihnen weiterhelfen.<br>
+                    Möchten Sie uns noch etwas mitteilen?
+                </p>
+            <?php endif; ?>
+            <form name="rplusfeedback" data-type="<?php echo $type; ?>" data-rating_id="<?php echo $rating_id; ?>">
+                <div class="form-row">
+                    <textarea class="feedback" name="feedback-<?php echo $type; ?>"></textarea>
+                </div>
+                <input type="submit" class="button rplus-rating-dofeedback" value="Abschicken">
+            </form>
+        </div>
+
+        <?php
+        $output = ob_get_contents();
+        ob_clean();
+
+        return $output;
     }
 
     /**
@@ -428,10 +475,12 @@ class RplusWpRating {
         update_post_meta( $rating_id, 'vote_browser', $_SERVER['USER_AGENT'] );
 
         // check for feedback textarea
+        /*
         $feedback = get_option( 'rplus_ratings_options_feedback_' . $type );
         if ( $feedback == '1' && isset( $_POST['feedback'] ) ) {
             update_post_meta( $rating_id, 'vote_feedback', $_POST['feedback'] );
         }
+        */
 
         return $rating_id;
     }
@@ -450,13 +499,13 @@ class RplusWpRating {
 
         // check if user already voted (cookies)
         if ( in_array( $post_id, $existing_votes ) ) {
-            wp_send_json_error( __( 'You\'ve already made your rating for this page.', 'required-wp-rating' ) );
+//            wp_send_json_error( __( 'You\'ve already made your rating for this page.', 'required-wp-rating' ) );
         }
 
         // proceed when we have a correct type
         if ( $type ) {
 
-            $this->add_rating( $post_id, $type );
+            $rating_id = $this->add_rating( $post_id, $type );
 
             // update votes_$type on current post (increment)
             $current_votes = get_post_meta( $post_id, 'rplus_ratings_' . $type, true );
@@ -474,17 +523,59 @@ class RplusWpRating {
                 COOKIE_DOMAIN
             );
 
-            // send response
-            wp_send_json_success( array(
+            $response = array(
                 'positives' => get_post_meta( $post_id, 'rplus_ratings_positive', true ),
                 'negatives' => get_post_meta( $post_id, 'rplus_ratings_negative', true ),
-                'message'   => __( 'Your vote was saved.', 'required-wp-rating' )
-            ) );
+                'message'   => __( 'Your vote was saved.', 'required-wp-rating' ),
+                'rating_id' => $rating_id,
+                'token' => wp_create_nonce( 'rplus-do-feedback-'.$rating_id )
+            );
+
+            $show_feedback = get_option( 'rplus_ratings_options_feedback_' . $type );
+            if ( ! empty( $show_feedback ) ) {
+                $response['feedback'] = true;
+                $response['feedbackform'] = $this->get_rating_feedbackform( $rating_id, $type );
+            }
+
+            // send response
+            wp_send_json_success( $response );
         }
 
         wp_send_json_error( __( 'Technical hiccups. Sorry.', 'required-wp-rating' ) );
         exit;
 
+    }
+
+    /**
+     * Ajax action to add feedback to ratings
+     */
+    public function ajax_dofeedback() {
+
+        // check for valid rating_id
+        if ( ! isset( $_POST['post_id'] ) || ! is_numeric( $_POST['post_id'] ) ) {
+            wp_send_json_error( __( 'This is not the feedback you are looking for.', 'required-wp-rating' ) );
+            exit;
+        }
+
+        $rating_id = $_POST['rating_id'];
+        $post_id = $_POST['post_id'];
+
+        // check nonce
+        check_ajax_referer( 'rplus-do-feedback-'.$rating_id, '_token' );
+
+        // check for valid feedback text
+        if ( ! isset( $_POST['feedback'] ) || empty( $_POST['feedback'] ) ) {
+            wp_send_json_error( __( 'Please fill in a feedback for your rating.', 'required-wp-rating' ) );
+            exit;
+        }
+
+        // add feedback to rating
+        update_post_meta( $rating_id, 'vote_feedback', $_POST['feedback'] );
+
+        do_action( 'rplus_wp_rating_send_feedback', $rating_id, $_POST['feedback'], $post_id );
+
+        wp_send_json_success( __( 'Thank you for the feedback.', 'required-wp-rating' ) );
+        exit;
     }
 
     /**

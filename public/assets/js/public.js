@@ -3,22 +3,13 @@
 
 	$(function () {
 
-        /**
-         * Show rating feedback form
-         */
-        $('.rplus-rating-toggle-form').on('click', function(e) {
-            e.preventDefault();
-            $(this).next().fadeIn();
-            return false;
-        });
-
         var rplus_xhr = false;
 
         $('.rplus-rating-dorating').on('click', function(e) {
             e.preventDefault();
 
             // don't execute this when a request is in progress
-            if ( rplus_xhr !== false ) {
+            if ( rplus_xhr !== false || ( $(this).data('voted') == true ) ) {
                 return false;
             }
 
@@ -32,33 +23,35 @@
 
             rplus_xhr = true;
 
-            // check if feedback form exist, when yes, add data to request
-            if ( $(this).data('form') == true ) {
-                var $feedback = $('.rplus-rating-'+$(this).data('type')+'-form textarea');
-                if ( $feedback ) {
-                    data.feedback = $feedback.val();
-                }
-            }
-
             $.post( RplusWpRatingAjax.ajaxurl, data, function( response ) {
 
                 if ( response.success == true ) {
 
+                    $this.addClass('active');
+                    // prevent double execution
+                    $this.removeClass('rplus-rating-dorating');
+                    $this.data('voted', true);
+
+                    // check if we have to display the feedbackform
+                    if ( response.data.feedback == true ) {
+
+                        var $form = $(response.data.feedbackform).hide();
+                        $('.rplus-rating-controls .button-group').after( $form );
+                        $form.fadeIn();
+                        $form.find('form[name="rplusfeedback"]').data('token', response.data.token).data('post', $this.data('post'));
+
+                    }
+
                     // update counts
-                    $('.rplus-rating-positive span').text( response.data.positives );
-                    $('.rplus-rating-negative span').text( response.data.negatives );
-
-                    var info = $('<span class="rplus-rating-success">' + response.data.message + '</span>').hide();
-                    $('.rplus-rating-controls').append( info.fadeIn() );
-
-                    window.setTimeout( function() { $('.rplus-rating-success').fadeOut(); }, 2000 );
+                    $('.rplus-rating-controls .rating-count-positive').text( response.data.positives );
+                    $('.rplus-rating-controls .rating-count-negative').text( response.data.negatives );
 
                 } else {
 
                     var info = $('<span class="rplus-rating-error">' + response.data + '</span>').hide();
                     $('.rplus-rating-controls').append( info.fadeIn() );
 
-                    window.setTimeout( function() { $('.rplus-rating-error').fadeOut(); }, 2000 );
+                    window.setTimeout( function() { $('.rplus-rating-error').fadeOut(); }, 5000 );
 
                 }
 
@@ -67,6 +60,74 @@
 
             return false;
         });
+
+        $(document).on('submit', 'form[name="rplusfeedback"]', function(e) {
+            e.preventDefault();
+
+            // don't execute this when a request is in progress
+            if ( rplus_xhr !== false || ( $(this).data('voted') == true ) ) {
+                return false;
+            }
+
+            var $this = $(this),
+                data = {
+                    post_id: $this.data('post'),
+                    rating_id: $this.data('rating_id'),
+                    action: 'rplus_wp_rating_ajax_dofeedback',
+                    feedback: $('.rplus-rating-controls textarea.feedback').val(),
+                    _token: $this.data('token')
+                };
+
+            // stop when no feedback is given
+            if ( data.feedback.length == 0 ) {
+                $('.rplus-rating-controls textarea.feedback').focus();
+                return false;
+            }
+
+            rplus_xhr = true;
+
+            $.post( RplusWpRatingAjax.ajaxurl, data, function( response ) {
+
+                if ( response.success == true ) {
+
+                    var $controls = $this.parents('.rplus-rating-controls'),
+                        $info = $('<span class="rplus-rating-success">' + response.data + '</span>').hide();
+
+                    $this.parent('.feedback-form').fadeOut( 400, function() {
+                        $(this).remove();
+                        $controls.append( $info.fadeIn() );
+                    } );
+
+                    window.setTimeout( function() { $('.rplus-rating-success').fadeOut(); }, 5000 );
+
+                } else {
+
+                    var $info = $('<span class="rplus-rating-error">' + response.data + '</span>').hide();
+                    $this.parent('.rplus-rating-controls').append( $info.fadeIn() );
+
+                    window.setTimeout( function() { $('.rplus-rating-error').fadeOut(); }, 5000 );
+
+                }
+
+                rplus_xhr = false;
+            });
+
+            return false;
+        });
+
+        /*
+
+         // check if feedback form exist, when yes, add data to request
+         if ( $(this).data('form') == true ) {
+         var $feedback = $('.rplus-rating-'+$(this).data('type')+'-form textarea');
+         if ( $feedback ) {
+         data.feedback = $feedback.val();
+         }
+         }
+
+
+
+         */
 
 	});
 
