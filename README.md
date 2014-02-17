@@ -11,15 +11,14 @@ WordPress plugin to make ratings (with optional comments) on every post / page.
 
 # Hooks & Filters
 ## Sending feedback action
-You can add custom code, when a feedback is sent for a rating. Example code below
+You can add custom code, when a feedback is sent for a ratings. Example code below
 ```php
-    add_action( 'rplus_wp_rating_send_feedback', function( $rating_id, $feedback, $post_id ) {
+add_action( 'rplus_wp_rating_send_feedback', function( $rating_id, $feedback, $post_id ) {
 
-        // send email to admin with rating infos
+    // send feedback to admin
+    wp_mail( 'admin@wordpress', 'New Rating Feedback', $feedback);
 
-        wp_mail( 'admin@wordpress', 'New Rating Feedback', $feedback);
-
-    }, 10, 3 );
+}, 10, 3 );
 ```
 
 # Updates
