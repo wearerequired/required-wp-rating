@@ -353,9 +353,6 @@ class RplusWpRating {
         $positives = get_post_meta( get_the_ID(), 'rplus_ratings_positive', true );
         $negatives = get_post_meta( get_the_ID(), 'rplus_ratings_negative', true );
 
-        $button_positive = '<button class="rplus-rating-dorating rplus-rating-positive" data-type="positive" data-post="'.get_the_ID().'">Thumb up <span>'.$positives.'</span></button>';
-        $button_negative = '<button class="rplus-rating-dorating rplus-rating-negative" data-type="negative" data-post="'.get_the_ID().'">Thumb down <span>'.$negatives.'</span></button>';
-
         $btn_label_positive = str_replace( '{count}', '<span class="rating-count-positive">' . $positives . '</span>', get_option( 'rplus_ratings_options_btn_label_positive' ) );
         $btn_label_negative = str_replace( '{count}', '<span class="rating-count-negative">' . $negatives . '</span>', get_option( 'rplus_ratings_options_btn_label_negative' ) );
 
@@ -373,41 +370,6 @@ class RplusWpRating {
                 <a href="#" class="button thumbs-down rplus-rating-dorating" data-type="negative" data-post="<?php the_ID(); ?>"><span class="icon-thumbs-down"></span> <?php echo $btn_label_negative; ?></a>
             </p>
 
-            <!-- div class="rplus-rating-positive-container">
-                <?php if ( $form_positive ) : ?>
-                    <button class="rplus-rating-toggle-form" data-type="positive" data-post="<?php the_ID(); ?>">
-                        Thumb up
-                        <span><?php echo $positives; ?></span>
-                    </button>
-                    <div class="rplus-rating-positive-form" style="display: none;">
-                        <?php if ( isset( $textarea_positive ) && $textarea_positive == '1' ) : ?>
-                            <textarea name="rplus_rating_feedback_positive"></textarea>
-                        <?php endif; ?>
-
-                        <button class="rplus-rating-dorating rplus-rating-positive" data-form="true" data-type="positive" data-post="<?php the_ID(); ?>"><?php _e( 'Send feedback', 'required-wp-rating' ); ?></button>
-                    </div>
-                <?php else : ?>
-                    <?php echo $button_positive; ?>
-                <?php endif; ?>
-            </div>
-
-            <div class="rplus-rating-negative-container">
-                <?php if ( $form_negative ) : ?>
-                    <button class="rplus-rating-toggle-form" data-type="negative">
-                        Thumb down
-                        <span><?php echo $negatives; ?></span>
-                    </button>
-                    <div class="rplus-rating-negative-form" style="display: none;">
-                        <?php if ( isset( $textarea_negative ) && $textarea_negative == '1' ) : ?>
-                            <textarea name="rplus_rating_feedback_negative"></textarea>
-                        <?php endif; ?>
-
-                        <button class="rplus-rating-dorating rplus-rating-negative" data-form="true" data-type="negative" data-post="<?php the_ID(); ?>"><?php _e( 'Send feedback', 'required-wp-rating' ); ?></button>
-                    </div>
-                <?php else : ?>
-                    <?php echo $button_negative; ?>
-                <?php endif; ?>
-            </div -->
         </div>
 
         <?php
@@ -435,8 +397,6 @@ class RplusWpRating {
             <?php if ( ! empty( $description ) ) : ?>
                 <p>
                     <?php echo $description; ?>
-                    Das freut uns sehr! Wir helfen gerne und hoffen immer, dass unsere Erklärungen Ihnen weiterhelfen.<br>
-                    Möchten Sie uns noch etwas mitteilen?
                 </p>
             <?php endif; ?>
             <form name="rplusfeedback" data-type="<?php echo $type; ?>" data-rating_id="<?php echo $rating_id; ?>">
@@ -474,14 +434,6 @@ class RplusWpRating {
         update_post_meta( $rating_id, 'vote_ip', $_SERVER['REMOTE_ADDR'] );
         update_post_meta( $rating_id, 'vote_browser', $_SERVER['USER_AGENT'] );
 
-        // check for feedback textarea
-        /*
-        $feedback = get_option( 'rplus_ratings_options_feedback_' . $type );
-        if ( $feedback == '1' && isset( $_POST['feedback'] ) ) {
-            update_post_meta( $rating_id, 'vote_feedback', $_POST['feedback'] );
-        }
-        */
-
         return $rating_id;
     }
 
@@ -499,7 +451,7 @@ class RplusWpRating {
 
         // check if user already voted (cookies)
         if ( in_array( $post_id, $existing_votes ) ) {
-//            wp_send_json_error( __( 'You\'ve already made your rating for this page.', 'required-wp-rating' ) );
+            wp_send_json_error( apply_filters( 'rplus_wp_rating/filter/messages/alreadyvoted', __( 'You\'ve already made your rating for this page.', 'required-wp-rating' ) ) );
         }
 
         // proceed when we have a correct type
@@ -541,7 +493,7 @@ class RplusWpRating {
             wp_send_json_success( $response );
         }
 
-        wp_send_json_error( __( 'Technical hiccups. Sorry.', 'required-wp-rating' ) );
+        wp_send_json_error( apply_filters( 'rplus_wp_rating/filter/messages/error', __( 'Technical hiccups. Sorry.', 'required-wp-rating' ) ) );
         exit;
 
     }
@@ -552,8 +504,8 @@ class RplusWpRating {
     public function ajax_dofeedback() {
 
         // check for valid rating_id
-        if ( ! isset( $_POST['post_id'] ) || ! is_numeric( $_POST['post_id'] ) ) {
-            wp_send_json_error( __( 'This is not the feedback you are looking for.', 'required-wp-rating' ) );
+        if ( ! isset( $_POST['rating_id'] ) || ! is_numeric( $_POST['rating_id'] ) ) {
+            wp_send_json_error( apply_filters( 'rplus_wp_rating/filter/messages/missing_rating_id', __( 'This is not the feedback you are looking for.', 'required-wp-rating' ) ) );
             exit;
         }
 
@@ -565,7 +517,7 @@ class RplusWpRating {
 
         // check for valid feedback text
         if ( ! isset( $_POST['feedback'] ) || empty( $_POST['feedback'] ) ) {
-            wp_send_json_error( __( 'Please fill in a feedback for your rating.', 'required-wp-rating' ) );
+            wp_send_json_error( apply_filters( 'rplus_wp_rating/filter/messages/empty_feedback', __( 'Please fill in a feedback for your rating.', 'required-wp-rating' ) ) );
             exit;
         }
 
@@ -574,7 +526,7 @@ class RplusWpRating {
 
         do_action( 'rplus_wp_rating_send_feedback', $rating_id, $_POST['feedback'], $post_id );
 
-        wp_send_json_success( __( 'Thank you for the feedback.', 'required-wp-rating' ) );
+        wp_send_json_success( apply_filters( 'rplus_wp_rating/filter/messages/feedback_thx', __( 'Thank you for the feedback.', 'required-wp-rating' ) ) );
         exit;
     }
 

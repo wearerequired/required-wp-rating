@@ -24,6 +24,14 @@ add_action( 'rplus_wp_rating_send_feedback', function( $rating_id, $feedback, $p
 
 }, 10, 3 );
 ```
+### Filters
+With these filters you can change some default text's that are used in this plugin
+
+- rplus_wp_rating/filter/messages/alreadyvoted: Error message displayed when a user tries to make a second rating on a post/page
+- rplus_wp_rating/filter/messages/error: Generic error message in case of technical hicups.
+- rplus_wp_rating/filter/messages/missing_rating_id: Message that is shown when a rating feedback gets send without a proper rating_id (hack attack?)
+- rplus_wp_rating/filter/messages/empty_feedback: Message that will be shown when no feedback is filled in.
+- rplus_wp_rating/filter/messages/feedback_thx: Successfull vote and feedback was saved message.
 
 # Updates
 
