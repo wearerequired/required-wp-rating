@@ -230,9 +230,62 @@ class RplusWpRatingAdmin {
      */
     public function add_plugin_admin_options() {
 
+        register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_title' );
+        register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_btn_label_positive' );
+        register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_btn_label_negative' );
         register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_posttypes_select' );
         register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_positive' );
         register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_negative' );
+        register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_positive_descr' );
+        register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_negative_descr' );
+
+        add_settings_section(
+            'rplus_ratings_options_titles',
+            __( 'Titles & Labels', 'required-wp-rating' ),
+            function() {
+                _e( 'Set default titles and labels.', 'required-wp-rating' );
+            },
+            $this->plugin_slug
+        );
+
+        add_settings_field(
+            'rplus_ratings_options_title',
+            __( 'Title', 'required-wp-rating' ),
+            function() {
+                ?>
+                <input name="rplus_ratings_options_title" class="regular-text" type="text" id="rplus_ratings_options_title" value="<?php echo get_option( 'rplus_ratings_options_title' ); ?>">
+                <p class="description"><?php _e( 'Optional title to display above the rating controls.', 'required-wp-rating' ); ?></p>
+            <?php
+            },
+            $this->plugin_slug,
+            'rplus_ratings_options_titles'
+        );
+
+        add_settings_field(
+            'rplus_ratings_options_btn_label_positive',
+            __( 'Positive Button Label', 'required-wp-rating' ),
+            function() {
+                ?>
+                <input name="rplus_ratings_options_btn_label_positive" class="regular-text" type="text" id="rplus_ratings_options_btn_label_positive" value="<?php echo get_option( 'rplus_ratings_options_btn_label_positive' ); ?>">
+                <p class="description"><?php _e( 'Button label for positive ratings. You can use <i>{count}</i> as a placeholder for already made ratings.', 'required-wp-rating' ); ?></p>
+            <?php
+            },
+            $this->plugin_slug,
+            'rplus_ratings_options_titles'
+        );
+
+        add_settings_field(
+            'rplus_ratings_options_btn_label_negative',
+            __( 'Negative Button Label', 'required-wp-rating' ),
+            function() {
+                ?>
+                <input name="rplus_ratings_options_btn_label_negative" class="regular-text" type="text" id="rplus_ratings_options_btn_label_negative" value="<?php echo get_option( 'rplus_ratings_options_btn_label_negative' ); ?>">
+                <p class="description"><?php _e( 'Button label for negative ratings. You can use <i>{count}</i> as a placeholder for already made ratings.', 'required-wp-rating' ); ?></p>
+            <?php
+            },
+            $this->plugin_slug,
+            'rplus_ratings_options_titles'
+        );
 
         add_settings_section(
             'rplus_ratings_options_posttypes',
@@ -252,13 +305,13 @@ class RplusWpRatingAdmin {
                     $post_type_labels = get_post_type_labels( get_post_type_object( $post_type ) );
                     ?>
                     <p>
-                    <label for="rplus_ratings_options_posttypes_select_<?php echo $post_type; ?>">
-                        <input type="hidden" name="rplus_ratings_options_posttypes_select[<?php echo $post_type; ?>]" value="0">
-                        <input name="rplus_ratings_options_posttypes_select[<?php echo $post_type; ?>]" type="checkbox" id="rplus_ratings_options_posttypes_select_<?php echo $post_type; ?>" value="1" <?php echo ( (is_array($selected) && isset( $selected[ $post_type ] ) && $selected[ $post_type ] == '1') ? 'checked' : '' ); ?>>
-                        <?php echo $post_type_labels->name; ?>
-                    </label>
+                        <label for="rplus_ratings_options_posttypes_select_<?php echo $post_type; ?>">
+                            <input type="hidden" name="rplus_ratings_options_posttypes_select[<?php echo $post_type; ?>]" value="0">
+                            <input name="rplus_ratings_options_posttypes_select[<?php echo $post_type; ?>]" type="checkbox" id="rplus_ratings_options_posttypes_select_<?php echo $post_type; ?>" value="1" <?php echo ( (is_array($selected) && isset( $selected[ $post_type ] ) && $selected[ $post_type ] == '1') ? 'checked' : '' ); ?>>
+                            <?php echo $post_type_labels->name; ?>
+                        </label>
                     </p>
-                    <?php
+                <?php
 
                 }
             },
@@ -292,6 +345,19 @@ class RplusWpRatingAdmin {
         );
 
         add_settings_field(
+            'rplus_ratings_options_feedback_positive_descr',
+            '',
+            function() {
+                ?>
+                <textarea name="rplus_ratings_options_feedback_positive_descr" id="rplus_ratings_options_feedback_positive_descr" rows="10" cols="50" class="regular-text"><?php echo get_option( 'rplus_ratings_options_feedback_positive_descr' ); ?></textarea>
+                <p class="description"><?php _e( 'Optional description for positive feedbacks, will be displayed above the feedback form.', 'required-wp-rating' ); ?></p>
+            <?php
+            },
+            $this->plugin_slug,
+            'rplus_ratings_options_feedback'
+        );
+
+        add_settings_field(
             'rplus_ratings_options_feedback_negative',
             __( 'Negative', 'required-wp-rating' ),
             function() {
@@ -301,6 +367,19 @@ class RplusWpRatingAdmin {
                     <input name="rplus_ratings_options_feedback_negative" type="checkbox" id="rplus_ratings_options_feedback_negative" value="1" <?php checked( '1', get_option('rplus_ratings_options_feedback_negative') ); ?>>
                     <?php _e( 'Yes, show a textarea for collecting feedback for a negative rating.', 'required-wp-rating' ); ?>
                 </label>
+            <?php
+            },
+            $this->plugin_slug,
+            'rplus_ratings_options_feedback'
+        );
+
+        add_settings_field(
+            'rplus_ratings_options_feedback_negative_descr',
+            '',
+            function() {
+                ?>
+                <textarea name="rplus_ratings_options_feedback_negative_descr" id="rplus_ratings_options_feedback_negative_descr" rows="10" cols="50" class="regular-text"><?php echo get_option( 'rplus_ratings_options_feedback_negative_descr' ); ?></textarea>
+                <p class="description"><?php _e( 'Optional description for negative feedbacks, will be displayed above the feedback form.', 'required-wp-rating' ); ?></p>
             <?php
             },
             $this->plugin_slug,
@@ -389,7 +468,7 @@ class RplusWpRatingAdmin {
                 $the_query->the_post();
 
                 echo '<p>';
-                printf( __( '<strong>%s</strong> on <strong>%s</strong>', 'required-wp-rating' ), ucfirst( get_post_meta( get_the_ID(), 'vote_type', true ) ), get_the_date() );
+                printf( __( '<strong>%s</strong> on <strong>%s</strong> at <strong>%s</strong>', 'required-wp-rating' ), ucfirst( get_post_meta( get_the_ID(), 'vote_type', true ) ), get_the_date(), get_the_time() );
 
                 $feedback = get_post_meta( get_the_ID(), 'vote_feedback', true );
                 if ( ! empty( $feedback ) && $feedback != 'null' ) {
