@@ -539,7 +539,9 @@ class RplusWpRating {
 
         do_action( 'rplus_wp_rating_send_feedback', $rating_id, $_POST['feedback'], $post_id );
 
-        wp_send_json_success( apply_filters( 'rplus_wp_rating/filter/messages/feedback_thx', __( 'Thank you for the feedback.', 'required-wp-rating' ) ) );
+        $msg = $this->polylang ? pll__( 'Thank you for the feedback.' ) : __( 'Thank you for the feedback.', 'required-wp-rating' );
+
+        wp_send_json_success( apply_filters( 'rplus_wp_rating/filter/messages/feedback_thx', $msg ) );
         exit;
     }
 

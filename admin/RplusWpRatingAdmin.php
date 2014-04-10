@@ -252,6 +252,7 @@ class RplusWpRatingAdmin {
             pll_register_string( 'rplus_ratings_feedback_btn_send', 'Send feedback', 'required-wp-rating' );
             pll_register_string( 'rplus_ratings_feedback_success', 'Your vote was saved.', 'required-wp-rating' );
             pll_register_string( 'rplus_ratings_feedback_alreadydone', 'You\'ve already made your rating for this page.', 'required-wp-rating' );
+            pll_register_string( 'rplus_ratings_feedback_thx', 'Thank you for the feedback.', 'required-wp-rating' );
 
         }
 
