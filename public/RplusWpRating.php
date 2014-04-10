@@ -437,13 +437,14 @@ class RplusWpRating {
         // add new vote (post type entry)
         $rating_id = wp_insert_post( array(
             'post_title' => $type . ': ' . $post_id,
-            'post_type' => $this->post_type
+            'post_type' => $this->post_type,
+            'post_status' => 'private'
         ) );
 
         update_post_meta( $rating_id, 'vote_for_post_id', $post_id );
         update_post_meta( $rating_id, 'vote_type', $type );
         update_post_meta( $rating_id, 'vote_ip', $_SERVER['REMOTE_ADDR'] );
-        update_post_meta( $rating_id, 'vote_browser', $_SERVER['USER_AGENT'] );
+        update_post_meta( $rating_id, 'vote_browser', $_SERVER['HTTP_USER_AGENT'] );
 
         return $rating_id;
     }
