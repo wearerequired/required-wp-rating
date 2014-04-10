@@ -239,6 +239,22 @@ class RplusWpRatingAdmin {
         register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_positive_descr' );
         register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_negative_descr' );
 
+        /**
+         * Check for Polylang, when exist, make the strings translatable here
+         */
+        if ( function_exists( 'pll_register_string' ) ) {
+
+            pll_register_string( 'rplus_ratings_title', get_option( 'rplus_ratings_options_title' ), 'required-wp-rating' );
+            pll_register_string( 'rplus_ratings_btn_positive', get_option( 'rplus_ratings_options_btn_label_positive' ), 'required-wp-rating' );
+            pll_register_string( 'rplus_ratings_btn_negative', get_option( 'rplus_ratings_options_btn_label_negative' ), 'required-wp-rating' );
+            pll_register_string( 'rplus_ratings_feedback_positive_descr', get_option( 'rplus_ratings_options_feedback_positive_descr' ), 'required-wp-rating', true );
+            pll_register_string( 'rplus_ratings_feedback_negative_descr', get_option( 'rplus_ratings_options_feedback_negative_descr' ), 'required-wp-rating', true );
+            pll_register_string( 'rplus_ratings_feedback_btn_send', 'Send feedback', 'required-wp-rating' );
+            pll_register_string( 'rplus_ratings_feedback_success', 'Your vote was saved.', 'required-wp-rating' );
+            pll_register_string( 'rplus_ratings_feedback_alreadydone', 'You\'ve already made your rating for this page.', 'required-wp-rating' );
+
+        }
+
         add_settings_section(
             'rplus_ratings_options_titles',
             __( 'Titles & Labels', 'required-wp-rating' ),

@@ -57,6 +57,11 @@ class RplusWpRating {
      */
     private $post_type = 'rplus_rating';
 
+    /**
+     * Polylang in use?
+     */
+    private $polylang = false;
+
 	/**
 	 * Initialize the plugin by setting localization and loading public scripts
 	 * and styles.
@@ -86,6 +91,10 @@ class RplusWpRating {
         $this->register();
 
         add_filter( 'the_content', array( $this, 'add_rating_controls_to_content' ) );
+
+        if ( function_exists( 'pll__' ) ) {
+            $this->polylang = true;
+        }
 
 	}
 
@@ -363,11 +372,13 @@ class RplusWpRating {
         <div class="rplus-rating-controls">
 
             <?php if ( ! empty( $title ) ) : ?>
-                <h3><?php echo $title; ?></h3>
+                <h3>
+                    <?php echo $this->polylang ? pll__( $title ) : $title; ?>
+                </h3>
             <?php endif; ?>
             <p class="button-group">
-                <a href="#" class="button thumbs-up rplus-rating-dorating" data-type="positive" data-post="<?php the_ID(); ?>"><span class="icon-thumbs-up"></span> <?php echo $btn_label_positive; ?></a>
-                <a href="#" class="button thumbs-down rplus-rating-dorating" data-type="negative" data-post="<?php the_ID(); ?>"><span class="icon-thumbs-down"></span> <?php echo $btn_label_negative; ?></a>
+                <a href="#" class="button thumbs-up rplus-rating-dorating" data-type="positive" data-post="<?php the_ID(); ?>"><span class="icon-thumbs-up"></span> <?php echo $this->polylang ? pll__( get_option( 'rplus_ratings_options_btn_label_positive' ) ) : $btn_label_positive; ?></a>
+                <a href="#" class="button thumbs-down rplus-rating-dorating" data-type="negative" data-post="<?php the_ID(); ?>"><span class="icon-thumbs-down"></span> <?php echo $this->polylang ? pll__( get_option( 'rplus_ratings_options_btn_label_negative' ) ) : $btn_label_negative; ?></a>
             </p>
 
         </div>
@@ -389,21 +400,21 @@ class RplusWpRating {
      */
     private function get_rating_feedbackform( $rating_id, $type ) {
 
-        $description = get_option( 'rplus_ratings_options_feedback_positive_descr' );
+        $description = get_option( 'rplus_ratings_options_feedback_'.$type.'_descr' );
 
         ob_start(); ?>
 
         <div class="feedback-form <?php echo $type; ?>">
             <?php if ( ! empty( $description ) ) : ?>
                 <p>
-                    <?php echo $description; ?>
+                    <?php echo $this->polylang ? pll__( $description ) : $description; ?>
                 </p>
             <?php endif; ?>
             <form name="rplusfeedback" data-type="<?php echo $type; ?>" data-rating_id="<?php echo $rating_id; ?>">
                 <div class="form-row">
                     <textarea class="feedback" name="feedback-<?php echo $type; ?>"></textarea>
                 </div>
-                <input type="submit" class="button rplus-rating-dofeedback" value="Abschicken">
+                <input type="submit" class="button rplus-rating-dofeedback" value="<?php echo $this->polylang ? pll__( 'Send feedback' ) : __( 'Send feedback', 'required-wp-rating' ); ?>">
             </form>
         </div>
 
@@ -451,7 +462,8 @@ class RplusWpRating {
 
         // check if user already voted (cookies)
         if ( in_array( $post_id, $existing_votes ) ) {
-            wp_send_json_error( apply_filters( 'rplus_wp_rating/filter/messages/alreadyvoted', __( 'You\'ve already made your rating for this page.', 'required-wp-rating' ) ) );
+            $msg = $this->polylang ? pll__( 'You\'ve already made your rating for this page.' ) : __( 'You\'ve already made your rating for this page.', 'required-wp-rating' );
+            wp_send_json_error( apply_filters( 'rplus_wp_rating/filter/messages/alreadyvoted', $msg ) );
         }
 
         // proceed when we have a correct type
@@ -478,7 +490,7 @@ class RplusWpRating {
             $response = array(
                 'positives' => get_post_meta( $post_id, 'rplus_ratings_positive', true ),
                 'negatives' => get_post_meta( $post_id, 'rplus_ratings_negative', true ),
-                'message'   => __( 'Your vote was saved.', 'required-wp-rating' ),
+                'message'   => $this->polylang ? pll__( 'Your vote was saved.' ) : __( 'Your vote was saved.', 'required-wp-rating' ),
                 'rating_id' => $rating_id,
                 'token' => wp_create_nonce( 'rplus-do-feedback-'.$rating_id )
             );

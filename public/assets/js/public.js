@@ -115,20 +115,6 @@
             return false;
         });
 
-        /*
-
-         // check if feedback form exist, when yes, add data to request
-         if ( $(this).data('form') == true ) {
-         var $feedback = $('.rplus-rating-'+$(this).data('type')+'-form textarea');
-         if ( $feedback ) {
-         data.feedback = $feedback.val();
-         }
-         }
-
-
-
-         */
-
 	});
 
 }(jQuery));
