@@ -1,0 +1,233 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: required+ WP Ratings v1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2014-06-20 14:20:25+0000\n"
+"Last-Translator: admin <support@switchplus.ch>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: CSL v1.x\n"
+"X-Poedit-Language: German\n"
+"X-Poedit-Country: SWITZERLAND\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-Bookmarks: \n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Textdomain-Support: yes"
+
+#: admin/RplusWpRatingAdmin.php:110
+#: admin/RplusWpRatingAdmin.php:442
+#@ required-wp-rating
+msgid "Ratings"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:131
+#, php-format
+#@ required-wp-rating
+msgid "<strong>Positive: </strong>%d<br><strong>Negative: </strong>%d"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:206
+#: admin/RplusWpRatingAdmin.php:207
+#@ required-wp-rating
+msgid "WP Ratings"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:261
+#@ required-wp-rating
+msgid "Titles & Labels"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:263
+#@ required-wp-rating
+msgid "Set default titles and labels."
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:270
+#@ required-wp-rating
+msgid "Title"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:274
+#@ required-wp-rating
+msgid "Optional title to display above the rating controls."
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:283
+#@ required-wp-rating
+msgid "Positive Button Label"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:287
+#@ required-wp-rating
+msgid "Button label for positive ratings. You can use <i>{count}</i> as a placeholder for already made ratings."
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:296
+#@ required-wp-rating
+msgid "Negative Button Label"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:300
+#@ required-wp-rating
+msgid "Button label for negative ratings. You can use <i>{count}</i> as a placeholder for already made ratings."
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:309
+#@ required-wp-rating
+msgid "Display rating controls"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:311
+#@ required-wp-rating
+msgid "Show rating controls below each post_type's content. The controls can be styled using css. See the plugin page for more info's. When you don't select any post type, the controls won't be displayed, but you can add them with the shortcode <strong>[rplus-rating]</strong>."
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:318
+#@ required-wp-rating
+msgid "Post Types"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:341
+#@ required-wp-rating
+msgid "Show feedback-boxes"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:343
+#@ required-wp-rating
+msgid "When activated, you'll see a textarea when you do a rating where you can add a feedback before sending."
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:350
+#@ required-wp-rating
+msgid "Positive"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:356
+#@ required-wp-rating
+msgid "Yes, show a textarea for collecting feedback for a positive rating."
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:370
+#@ required-wp-rating
+msgid "Optional description for positive feedbacks, will be displayed above the feedback form."
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:379
+#@ required-wp-rating
+msgid "Negative"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:385
+#@ required-wp-rating
+msgid "Yes, show a textarea for collecting feedback for a negative rating."
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:399
+#@ required-wp-rating
+msgid "Optional description for negative feedbacks, will be displayed above the feedback form."
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:416
+#@ required-wp-rating
+msgid "Settings"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:463
+#, php-format
+#@ required-wp-rating
+msgid "<strong>Positive: </strong>%d, <strong>Negative: </strong>%d."
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:464
+#@ required-wp-rating
+msgid "Show Details"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:488
+#, php-format
+#@ required-wp-rating
+msgid "<strong>%s</strong> on <strong>%s</strong> at <strong>%s</strong>"
+msgstr ""
+
+#: admin/RplusWpRatingAdmin.php:493
+#@ required-wp-rating
+msgid "<strong>Feedback:</strong> "
+msgstr ""
+
+#: public/RplusWpRating.php:466
+#@ required-wp-rating
+msgid "You've already made your rating for this page."
+msgstr ""
+
+#: public/RplusWpRating.php:494
+#@ required-wp-rating
+msgid "Your vote was saved."
+msgstr ""
+
+#: public/RplusWpRating.php:509
+#@ required-wp-rating
+msgid "Technical hiccups. Sorry."
+msgstr ""
+
+#: public/RplusWpRating.php:521
+#@ required-wp-rating
+msgid "This is not the feedback you are looking for."
+msgstr ""
+
+#: public/RplusWpRating.php:533
+#@ required-wp-rating
+msgid "Please fill in a feedback for your rating."
+msgstr ""
+
+#: public/RplusWpRating.php:542
+#@ required-wp-rating
+msgid "Thank you for the feedback."
+msgstr ""
+
+#. translators: plugin header field 'Name'
+#: required-wp-rating.php:0
+#@ required-wp-rating
+msgid "required+ WP Ratings"
+msgstr ""
+
+#. translators: plugin header field 'PluginURI'
+#: required-wp-rating.php:0
+#@ required-wp-rating
+msgid "https://github.com/wearerequired/required-wp-rating"
+msgstr ""
+
+#. translators: plugin header field 'Description'
+#: required-wp-rating.php:0
+#@ required-wp-rating
+msgid "Make ratings on all types of wordpress posts and pages. Includes a widget and a Shortcode."
+msgstr ""
+
+#. translators: plugin header field 'Author'
+#: required-wp-rating.php:0
+#@ required-wp-rating
+msgid "required+"
+msgstr ""
+
+#. translators: plugin header field 'AuthorURI'
+#: required-wp-rating.php:0
+#@ required-wp-rating
+msgid "http://required.ch"
+msgstr ""
+
+#. translators: plugin header field 'Version'
+#: required-wp-rating.php:0
+#@ required-wp-rating
+msgid "1.0.0"
+msgstr ""
+
+#: public/RplusWpRating.php:417
+#@ required-wp-rating
+msgid "Send feedback"
+msgstr ""
+
