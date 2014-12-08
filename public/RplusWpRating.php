@@ -402,6 +402,9 @@ class RplusWpRating {
 
         $description = get_option( 'rplus_ratings_options_feedback_'.$type.'_descr' );
 
+        $reply = get_option( 'rplus_ratings_options_feedback_reply' );
+        $reply_descr = get_option( 'rplus_ratings_options_feedback_reply_descr' );
+
         ob_start(); ?>
 
         <div class="feedback-form <?php echo $type; ?>">
@@ -414,6 +417,16 @@ class RplusWpRating {
                 <div class="form-row">
                     <textarea class="feedback" name="feedback-<?php echo $type; ?>"></textarea>
                 </div>
+                <?php if ( 1 == $reply ) : ?>
+                    <div class="feedback-reply">
+                        <?php if ( ! empty( $reply_descr ) ) : ?>
+                            <p>
+                                <?php echo $this->polylang ? pll__( $reply_descr ) : $reply_descr; ?>
+                                <input type="text" name="reply" class="reply" placeholder="<?php echo $this->polylang ? pll__( 'Email address' ) : __( 'Email address', 'required-wp-rating' ); ?>" size="15">
+                            </p>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
                 <input type="submit" class="button rplus-rating-dofeedback" value="<?php echo $this->polylang ? pll__( 'Send feedback' ) : __( 'Send feedback', 'required-wp-rating' ); ?>">
             </form>
         </div>
@@ -535,9 +548,10 @@ class RplusWpRating {
         }
 
         // add feedback to rating
-        update_post_meta( $rating_id, 'vote_feedback', $_POST['feedback'] );
+        update_post_meta( $rating_id, 'vote_feedback', sanitize_text_field( $_POST['feedback'] ) );
+        update_post_meta( $rating_id, 'vote_reply_email', sanitize_text_field( $_POST['reply'] ) );
 
-        do_action( 'rplus_wp_rating_send_feedback', $rating_id, $_POST['feedback'], $post_id );
+        do_action( 'rplus_wp_rating_send_feedback', $rating_id, $_POST['feedback'], $post_id, $_POST['reply'] );
 
         $msg = $this->polylang ? pll__( 'Thank you for the feedback.' ) : __( 'Thank you for the feedback.', 'required-wp-rating' );
 

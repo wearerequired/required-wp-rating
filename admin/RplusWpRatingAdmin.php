@@ -238,6 +238,8 @@ class RplusWpRatingAdmin {
         register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_negative' );
         register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_positive_descr' );
         register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_negative_descr' );
+        register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_reply' );
+        register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_feedback_reply_descr' );
 
         /**
          * Check for Polylang, when exist, make the strings translatable here
@@ -253,6 +255,7 @@ class RplusWpRatingAdmin {
             pll_register_string( 'rplus_ratings_feedback_success', 'Your vote was saved.', 'required-wp-rating' );
             pll_register_string( 'rplus_ratings_feedback_alreadydone', 'You\'ve already made your rating for this page.', 'required-wp-rating' );
             pll_register_string( 'rplus_ratings_feedback_thx', 'Thank you for the feedback.', 'required-wp-rating' );
+            pll_register_string( 'rplus_ratings_feedback_reply_descr', get_option( 'rplus_ratings_options_feedback_reply_descr' ), 'required-wp-rating' );
 
         }
 
@@ -402,6 +405,37 @@ class RplusWpRatingAdmin {
             $this->plugin_slug,
             'rplus_ratings_options_feedback'
         );
+
+        add_settings_field(
+            'rplus_ratings_options_feedback_reply',
+            __( 'Ask for Reply', 'required-wp-rating' ),
+            function() {
+                ?>
+                <label for="rplus_ratings_options_feedback_reply">
+                    <input type="hidden" name="rplus_ratings_options_feedback_reply" value="0">
+                    <input name="rplus_ratings_options_feedback_reply" type="checkbox" id="rplus_ratings_options_feedback_reply" value="1" <?php checked( '1', get_option('rplus_ratings_options_feedback_reply') ); ?>>
+                    <?php _e( 'Yes, show a input field to let the user enter his email address, asking for feedback.', 'required-wp-rating' ); ?>
+                </label>
+            <?php
+            },
+            $this->plugin_slug,
+            'rplus_ratings_options_feedback'
+        );
+
+        add_settings_field(
+            'rplus_ratings_options_feedback_reply_descr',
+            '',
+            function() {
+                ?>
+                <textarea name="rplus_ratings_options_feedback_reply_descr" id="rplus_ratings_options_feedback_reply_descr" rows="2" cols="50" class="regular-text"><?php echo get_option( 'rplus_ratings_options_feedback_reply_descr' ); ?></textarea>
+                <p class="description"><?php _e( 'Optional decription for the email input field.', 'required-wp-rating' ); ?></p>
+            <?php
+            },
+            $this->plugin_slug,
+            'rplus_ratings_options_feedback'
+        );
+
+
     }
 
 	/**
@@ -492,6 +526,13 @@ class RplusWpRatingAdmin {
                     echo '<br>';
                     _e( '<strong>Feedback:</strong> ', 'required-wp-rating');
                     echo $feedback;
+                }
+
+                $reply = get_post_meta( get_the_ID(), 'vote_reply_email', true );
+                if ( ! empty( $reply ) && $reply != 'null' ) {
+                    echo '<br>';
+                    _e( '<strong>Reply to:</strong> ', 'required-wp-rating');
+                    echo $reply;
                 }
                 echo "</p><hr>";
 

@@ -75,6 +75,7 @@
                     rating_id: $this.data('rating_id'),
                     action: 'rplus_wp_rating_ajax_dofeedback',
                     feedback: $('.rplus-rating-controls textarea.feedback').val(),
+                    reply: $('.rplus-rating-controls input.reply').val(),
                     _token: $this.data('token')
                 };
 
