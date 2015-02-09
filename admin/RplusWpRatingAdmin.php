@@ -67,6 +67,11 @@ class RplusWpRatingAdmin {
 
         $this->change_admin_columns();
 
+		// Filter posts for custom column sorting
+		add_filter( 'pre_get_posts', array( $this, 'pre_get_posts' ) );
+
+		add_filter('get_meta_sql', array( $this, 'change_columns_order_sql' ) );
+
     }
 
     /**
@@ -95,6 +100,8 @@ class RplusWpRatingAdmin {
             // fill custom columns
             add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'admin_manage_columns' ), 10, 2 );
 
+	        add_filter( "manage_edit-{$post_type}_sortable_columns", array( $this, 'admin_sortable_columns' ) );
+
         }
 
     }
@@ -107,7 +114,8 @@ class RplusWpRatingAdmin {
      */
     public function admin_edit_columns( $columns ) {
 
-        $columns['rplusrating'] = __( 'Ratings', 'required-wp-rating' );
+	    $columns['rplusrating_positive'] = __( 'Positive Ratings', 'required-wp-rating' );
+	    $columns['rplusrating_negative'] = __( 'Negative Ratings', 'required-wp-rating' );
 
         return $columns;
 
@@ -124,12 +132,16 @@ class RplusWpRatingAdmin {
 
         switch ( $column ) {
 
-            // Display rating infos
-            case 'rplusrating':
+            // Display positive rating infos
+            case 'rplusrating_positive':
                 $positives = get_post_meta( $post_id, 'rplus_ratings_positive', true );
-                $negatives = get_post_meta( $post_id, 'rplus_ratings_negative', true );
-                printf( __( '<strong>Positive: </strong>%d<br><strong>Negative: </strong>%d', 'required-wp-rating' ), $positives, $negatives );
+	            printf( __( '%d', 'required-wp-rating' ), $positives );
                 break;
+	        // Display negative rating infos
+	        case 'rplusrating_negative':
+		        $negatives = get_post_meta( $post_id, 'rplus_ratings_negative', true );
+				printf( __( '%d', 'required-wp-rating' ), $negatives );
+		        break;
 
             // Don't show anything by default
             default:
@@ -137,6 +149,64 @@ class RplusWpRatingAdmin {
         }
 
     }
+
+	/**
+	 * Filter the sortable columns.
+	 *
+	 * @param array $columns The columns that can be filtered.
+	 *
+	 * @return array
+	 */
+	public function admin_sortable_columns( $columns ) {
+		$columns['rplusrating_negative'] = 'rplusrating_negative';
+		$columns['rplusrating_positive'] = 'rplusrating_positive';
+
+		return $columns;
+	}
+
+	/**
+	 * Modify the query for the custom sorting.
+	 *
+	 * @param WP_Query $query
+	 */
+	public function pre_get_posts( $query ) {
+		if( ! is_admin() )
+			return;
+
+		$orderby = $query->get( 'orderby');
+
+		if( 'rplusrating_negative' === $orderby ) {
+			$query->set('meta_key','rplus_ratings_negative');
+			$query->set('orderby','meta_value_num');
+		} else if ( 'rplusrating_positive' === $orderby ) {
+			$query->set('meta_key','rplus_ratings_positive');
+			$query->set('orderby','meta_value_num');
+		}
+	}
+
+	/**
+	 * Filter the SQL clauses for the column sorting to include posts
+	 * without any ratings.
+	 *
+	 * @param array $clauses The SQL clauses
+	 *
+	 * @return array
+	 */
+	public function change_columns_order_sql( $clauses ) {
+		global $wp_query;
+
+		if ( in_array( $wp_query->get( 'meta_key' ), array(
+				'rplus_ratings_positive',
+				'rplus_ratings_negative'
+			) ) && 'meta_value_num' === $wp_query->get( 'orderby' )
+		) {
+			// Left Join so empty values will be returned as well
+			$clauses['join'] = str_replace( 'INNER JOIN', 'LEFT JOIN', $clauses['join'] ) . $clauses['where'];
+			$clauses['where'] = '';
+		}
+
+		return $clauses;
+	}
 
 	/**
 	 * Return an instance of this class.
