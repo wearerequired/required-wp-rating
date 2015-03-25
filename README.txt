@@ -82,8 +82,5 @@ No Screenshots yet.
 = 1.1.0 =
 We now properly delete data on plugin unstaill. Also: Composer support!
 
-= 1.0.1 =
-I18n improvements
-
 = 1.0.0 =
 Initial Release
