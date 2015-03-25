@@ -14,7 +14,7 @@
  * Plugin Name:       required+ WP Ratings
  * Plugin URI:        https://github.com/wearerequired/required-wp-rating
  * Description:       Make ratings on all types of wordpress posts and pages. Includes a widget and a Shortcode.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            required+
  * Author URI:        http://required.ch
  * Text Domain:       rpluswpratings
