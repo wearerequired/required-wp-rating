@@ -14,7 +14,7 @@
  * Plugin Name:       required+ WP Ratings
  * Plugin URI:        https://github.com/wearerequired/required-wp-rating
  * Description:       Make ratings on all types of wordpress posts and pages. Includes a widget and a Shortcode.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            required+
  * Author URI:        http://required.ch
  * Text Domain:       rpluswpratings
@@ -35,13 +35,6 @@ if ( ! defined( 'WPINC' ) ) {
  *----------------------------------------------------------------------------*/
 
 require_once( plugin_dir_path( __FILE__ ) . 'public/RplusWpRating.php' );
-
-/*
- * Register hooks that are fired when the plugin is activated or deactivated.
- * When the plugin is deleted, the uninstall.php file is loaded.
- */
-register_activation_hook( __FILE__, array( 'RplusWpRating', 'activate' ) );
-register_deactivation_hook( __FILE__, array( 'RplusWpRating', 'deactivate' ) );
 
 /**
  * Initialize the plugins base class

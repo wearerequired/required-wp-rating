@@ -1,0 +1,29 @@
+{
+  "name": "wearerequired/required-wp-rating",
+  "description": "Disable Sidebar and Dashboard Widgets with an easy to use interface.",
+  "version": "1.1.0",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0+",
+  "authors": [
+    {
+      "name": "Stefan Pasch",
+      "email": "stefan@required.ch",
+      "homepage": "http://required.ch",
+      "role": "Developer"
+    },
+    {
+      "name": "Silvan Hagen",
+      "email": "silvan@required.ch",
+      "homepage": "http://required.ch",
+      "role": "Developer"
+    },
+    {
+      "name": "Pascal Birchler",
+      "email": "pascal@required.ch",
+      "homepage": "http://required.ch",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+  }
+}

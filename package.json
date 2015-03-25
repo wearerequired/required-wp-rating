@@ -1,0 +1,21 @@
+{
+  "name": "required-wp-rating",
+  "version": "1.1.0",
+  "description": "Make ratings on all types of wordpress posts and pages. Includes a widget and a Shortcode.",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:wearerequired/required-wp-rating.git"
+  },
+  "devDependencies": {
+    "grunt": "*",
+    "grunt-contrib-watch": "*",
+    "grunt-wp-i18n": "*",
+    "grunt-wp-readme-to-markdown": "*",
+    "load-grunt-config": "*",
+    "time-grunt": "*"
+  },
+  "dependencies": {
+    "time-grunt": "*"
+  }
+}

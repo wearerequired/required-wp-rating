@@ -16,15 +16,15 @@
 <div class="wrap">
 	<h2><?php echo esc_html( get_admin_page_title() ); ?></h2>
 
-    <form method="post" action="options.php">
-        <?php
+	<form method="post" action="options.php">
+		<?php
 
-        settings_fields( 'required-wp-rating-options' );
+		settings_fields( 'required-wp-rating-options' );
 
-        do_settings_sections( 'required-wp-rating' );
+		do_settings_sections( 'required-wp-rating' );
 
-        ?>
-        <?php submit_button(); ?>
-    </form>
+		?>
+		<?php submit_button(); ?>
+	</form>
 
 </div>

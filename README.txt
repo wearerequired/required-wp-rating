@@ -1,137 +1,89 @@
-=== @TODO: Plugin Name ===
-Contributors: (this should be a list of wordpress.org userids)
-Donate link: http://example.com/
-Tags: comments, spam
+=== WP Team List ===
+Contributors: wearerequired, hubeRsen, neverything, swissspidy
+Donate link: http://required.ch/
+Tags: rating, widget
 Requires at least: 3.5.1
-Tested up to: 3.6
-Stable tag: 1.0.0
+Tested up to: 4.2
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+WordPress plugin to make ratings (with optional comments) on every post / page.
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+Adds rating functionality to WordPress so visitors can upvote/downvote each post with an optional comment.
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+This simple plugin allows you to disable any Sidebar and Dashboard Widget for the current WordPress site you are on. It provides a simple user interface available to users with `edit_theme_options` capabilities (usually Administrator role) available under Appearance -> Disable Widgets.
+After saving the settings, it removes the Sidebar and Dashboard Widgets selected.
 
-A few notes about the sections above:
+**Developer? Get to know the hooks**
 
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
+You can add custom code when a feedback is sent for a rating. Example code below
+```php
+add_action( 'rplus_wp_rating_send_feedback', function( $rating_id, $feedback, $post_id ) {
+    // send feedback to admin
+    wp_mail( 'admin@example.com', 'New Rating Feedback', $feedback);
+}, 10, 3 );
+```
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
+First of all, this plugin is strucuted on the shoulders of the fantastic [WordPress Plugin Boilerplate](https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate/) by [Tom McFarlin](http://profiles.wordpress.org/tommcfarlin/), you might could use this too for your next plugin.
 
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+Let's have a look at the filters we provide:
+
+* `rplus_wp_rating/filter/messages/alreadyvoted`: Error message displayed when a user tries to make a second rating on a post/page
+* `rplus_wp_rating/filter/messages/error`: Generic error message in case of technical hicups.
+* `rplus_wp_rating/filter/messages/missing_rating_id`: Message that is shown when a rating feedback gets send without a proper rating_id (hack attack?)
+* `rplus_wp_rating/filter/messages/empty_feedback`: Message that will be shown when no feedback is filled in.
+* `rplus_wp_rating/filter/messages/feedback_thx`: Successfull vote and feedback was saved message.
+
+**Contributions**
+
+If you would like to contribute to this plugin, report an isse or anything like that, please note that we develop this plugin on [GitHub](https://github.com/wearerequired/WP-Widget-Disable).
+
+Developed by [required+](http://required.ch/ "Team of experienced web professionals from Switzerland & Germany"), a network of experienced web professionals from Switzerland and Germany. We focus on Interaction Design, Mobile Web, WordPress and some other things.
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
+Here is how you install WP Ratings.
 
-e.g.
-
-= Using The WordPress Dashboard =
-
-1. Navigate to the 'Add New' in the plugins dashboard
-2. Search for 'plugin-name'
-3. Click 'Install Now'
-4. Activate the plugin on the Plugin dashboard
-
-= Uploading in WordPress Dashboard =
+**Uploading in WordPress Dashboard**
 
 1. Navigate to the 'Add New' in the plugins dashboard
 2. Navigate to the 'Upload' area
-3. Select `plugin-name.zip` from your computer
+3. Select `required-wp-rating.zip` from your computer
 4. Click 'Install Now'
 5. Activate the plugin in the Plugin dashboard
 
-= Using FTP =
+**Using FTP**
 
-1. Download `plugin-name.zip`
-2. Extract the `plugin-name` directory to your computer
-3. Upload the `plugin-name` directory to the `/wp-content/plugins/` directory
+1. Download `required-wp-rating.zip`
+2. Extract the `required-wp-rating` directory to your computer
+3. Upload the `required-wp-rating` directory to the `/wp-content/plugins/` directory
 4. Activate the plugin in the Plugin dashboard
-
-
-== Frequently Asked Questions ==
-
-= A question that someone might have =
-
-An answer to that question.
-
-= What about foo bar? =
-
-Answer to foo bar dilemma.
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+No Screenshots yet.
 
 == Changelog ==
 
-= 1.0 =
-* A change since the previous version.
-* Another change.
+= 1.1.0 =
+* New: Ratings are properly deleted on plugin uninstall.
+* New: Composer support.
+* Enhancement: Code cleanup! We're doing more with less code now.
 
-= 0.5 =
-* List versions from most recent at top to oldest at bottom.
+= 1.0.0 =
+* Initial release of the working plugin.
+* German (de_DE) translations added.
 
 == Upgrade Notice ==
 
-= 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
+= 1.1.0 =
+We now properly delete data on plugin unstaill. Also: Composer support!
 
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
+= 1.0.1 =
+I18n improvements
 
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
-
-== Updates ==
-
-This plugin supports the [GitHub Updater](https://github.com/afragen/github-updater) plugin, so if you install that, this plugin becomes automatically updateable direct from GitHub. Any submission to WP.org repo will make this redundant.
-
-== A brief Markdown Example ==
-
-Ordered list:
-
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](http://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
+= 1.0.0 =
+Initial Release

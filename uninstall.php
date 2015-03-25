@@ -14,4 +14,9 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-// @TODO: Define uninstall functionality here
+/** @var WP_Post[] $posts */
+$posts = get_posts( array( 'post_type' => 'rplus_rating', 'posts_per_page' => - 1 ) );
+/** @var WP_Post $post */
+foreach ( $posts as $post ) {
+	wp_delete_post( $post->ID, true );
+}
