@@ -30,7 +30,7 @@ class RplusWpRating {
 	 * of text. Its value should match the Text Domain file header in the main
 	 * plugin file.
 	 *
-	 * @since    1.0.0
+	 * @since 1.0.0
 	 * @var      string
 	 */
 	protected $plugin_slug = 'required-wp-rating';
@@ -38,8 +38,8 @@ class RplusWpRating {
 	/**
 	 * Instance of this class.
 	 *
-	 * @since    1.0.0
-	 * @var      object
+	 * @since 1.0.0
+	 * @var RplusWpRating
 	 */
 	protected static $instance = null;
 
@@ -59,14 +59,14 @@ class RplusWpRating {
 
 	/**
 	 * Polylang in use?
+	 *
+	 * @var bool
 	 */
 	private $polylang = false;
 
 	/**
 	 * Initialize the plugin by setting localization and loading public scripts
 	 * and styles.
-	 *
-	 * @since     1.0.0
 	 */
 	private function __construct() {
 
@@ -144,8 +144,8 @@ class RplusWpRating {
 	/**
 	 * Return the plugin slug.
 	 *
-	 * @since    1.0.0
-	 * @return    Plugin slug variable.
+	 * @since 1.0.0
+	 * @return string
 	 */
 	public function get_plugin_slug() {
 		return $this->plugin_slug;
@@ -154,8 +154,8 @@ class RplusWpRating {
 	/**
 	 * Return an instance of this class.
 	 *
-	 * @since     1.0.0
-	 * @return    RplusWpRating    A single instance of this class.
+	 *
+	 * @return RplusWpRating A single instance of this class.
 	 */
 	public static function get_instance() {
 
@@ -170,22 +170,20 @@ class RplusWpRating {
 	/**
 	 * Load the plugin text domain for translation.
 	 *
-	 * @since    1.0.0
+	 * @since 1.0.0
 	 */
 	public function load_plugin_textdomain() {
-
 		$domain = $this->plugin_slug;
 		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
 
 		load_textdomain( $domain, trailingslashit( WP_LANG_DIR ) . $domain . '/' . $domain . '-' . $locale . '.mo' );
 		load_plugin_textdomain( $domain, false, basename( plugin_dir_path( dirname( __FILE__ ) ) ) . '/languages/' );
-
 	}
 
 	/**
 	 * Register and enqueue public-facing style sheet.
 	 *
-	 * @since    1.0.0
+	 * @since 1.0.0
 	 */
 	public function enqueue_styles() {
 		wp_enqueue_style( $this->plugin_slug . '-plugin-styles', plugins_url( 'assets/css/public.css', __FILE__ ), array(), self::VERSION );
@@ -194,7 +192,7 @@ class RplusWpRating {
 	/**
 	 * Register and enqueues public-facing JavaScript files.
 	 *
-	 * @since    1.0.0
+	 * @since 1.0.0
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery' ), self::VERSION );
@@ -208,9 +206,9 @@ class RplusWpRating {
 	}
 
 	/**
-	 * Print rating controls
+	 * Print rating controls.
 	 *
-	 * @param $atts
+	 * @param array $atts Shortcode attributes.
 	 *
 	 * @return string
 	 */
@@ -222,10 +220,9 @@ class RplusWpRating {
 
 	/**
 	 * Get the rating controls.
-	 * @return string
+	 * @return string HTML output for the rating controls.
 	 */
 	public function get_rating_controls() {
-
 		$positives = get_post_meta( get_the_ID(), 'rplus_ratings_positive', true );
 		$negatives = get_post_meta( get_the_ID(), 'rplus_ratings_negative', true );
 
@@ -244,9 +241,13 @@ class RplusWpRating {
 				</h3>
 			<?php endif; ?>
 			<p class="button-group">
-				<a href="#" class="button thumbs-up rplus-rating-dorating" data-type="positive" data-post="<?php the_ID(); ?>"><span class="icon-thumbs-up"></span> <?php echo $this->polylang ? pll__( get_option( 'rplus_ratings_options_btn_label_positive' ) ) : $btn_label_positive; ?>
+				<a href="#" class="button thumbs-up rplus-rating-dorating" data-type="positive" data-post="<?php the_ID(); ?>">
+					<span class="icon-thumbs-up"></span>
+					<?php echo $this->polylang ? pll__( get_option( 'rplus_ratings_options_btn_label_positive' ) ) : $btn_label_positive; ?>
 				</a>
-				<a href="#" class="button thumbs-down rplus-rating-dorating" data-type="negative" data-post="<?php the_ID(); ?>"><span class="icon-thumbs-down"></span> <?php echo $this->polylang ? pll__( get_option( 'rplus_ratings_options_btn_label_negative' ) ) : $btn_label_negative; ?>
+				<a href="#" class="button thumbs-down rplus-rating-dorating" data-type="negative" data-post="<?php the_ID(); ?>">
+					<span class="icon-thumbs-down"></span>
+					<?php echo $this->polylang ? pll__( get_option( 'rplus_ratings_options_btn_label_negative' ) ) : $btn_label_negative; ?>
 				</a>
 			</p>
 
@@ -257,19 +258,17 @@ class RplusWpRating {
 		ob_clean();
 
 		return $output;
-
 	}
 
 	/**
 	 * Get form for adding feedbacks to rating
 	 *
-	 * @param $rating_id
-	 * @param $type
+	 * @param int    $rating_id ID of the rating.
+	 * @param string $type      Rating type. Can be either 'positive' or 'negative'.
 	 *
 	 * @return string
 	 */
 	private function get_rating_feedbackform( $rating_id, $type ) {
-
 		$description = get_option( 'rplus_ratings_options_feedback_' . $type . '_descr' );
 
 		$reply       = get_option( 'rplus_ratings_options_feedback_reply' );
@@ -311,13 +310,12 @@ class RplusWpRating {
 	/**
 	 * Add new rating entry
 	 *
-	 * @param $post_id
-	 * @param $type
+	 * @param int    $post_id ID of the rated post.
+	 * @param string $type    Rating type. Either 'positive' or 'negative'
 	 *
 	 * @return int|WP_Error
 	 */
 	private function add_rating( $post_id, $type ) {
-
 		// add new vote (post type entry)
 		$rating_id = wp_insert_post( array(
 			'post_title'  => $type . ': ' . $post_id,
@@ -337,7 +335,6 @@ class RplusWpRating {
 	 * Ajax vote action
 	 */
 	public function ajax_dorating() {
-
 		// check nonce
 		check_ajax_referer( 'rplus-do-rating', '_token' );
 
@@ -392,14 +389,12 @@ class RplusWpRating {
 
 		wp_send_json_error( apply_filters( 'rplus_wp_rating/filter/messages/error', __( 'Technical hiccups. Sorry.', 'required-wp-rating' ) ) );
 		exit;
-
 	}
 
 	/**
 	 * Ajax action to add feedback to ratings
 	 */
 	public function ajax_dofeedback() {
-
 		// check for valid rating_id
 		if ( ! isset( $_POST['rating_id'] ) || ! is_numeric( $_POST['rating_id'] ) ) {
 			wp_send_json_error( apply_filters( 'rplus_wp_rating/filter/messages/missing_rating_id', __( 'This is not the feedback you are looking for.', 'required-wp-rating' ) ) );
@@ -433,16 +428,15 @@ class RplusWpRating {
 	/**
 	 * Add rating controls for activated post_types (activation via plugin options backend)
 	 *
-	 * @param $content
+	 * @param string $content The post content we're filtering.
 	 *
-	 * @return mixed
+	 * @return string
 	 */
 	public function add_rating_controls_to_content( $content ) {
-
 		global $post;
 
 		// don't do anything when we're not a post
-		if ( ! is_object( $post ) || ( get_class( $post ) != 'WP_Post' ) ) {
+		if ( ! is_a( $post, 'WP_Post' ) ) {
 			return $content;
 		}
 
@@ -457,10 +451,8 @@ class RplusWpRating {
 		$selected = get_option( 'rplus_ratings_options_posttypes_select' );
 
 		if ( is_array( $selected ) && isset( $selected[ $current_post_type ] ) && $selected[ $current_post_type ] == '1' ) {
-
 			// append the rating controls to the content
 			$content .= $this->get_rating_controls();
-
 		}
 
 		return $content;

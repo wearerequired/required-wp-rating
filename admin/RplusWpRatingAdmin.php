@@ -17,20 +17,19 @@
  * @author  Stefan Pasch <stefan@required.ch>
  */
 class RplusWpRatingAdmin {
-
 	/**
 	 * Instance of this class.
 	 *
-	 * @since    1.0.0
-	 * @var      object
+	 * @since 1.0.0
+	 * @var RplusWpRatingAdmin
 	 */
 	protected static $instance = null;
 
 	/**
 	 * Slug of the plugin screen.
 	 *
-	 * @since    1.0.0
-	 * @var      string
+	 * @since 1.0.0
+	 * @var string
 	 */
 	protected $plugin_screen_hook_suffix = null;
 
@@ -38,10 +37,9 @@ class RplusWpRatingAdmin {
 	 * Initialize the plugin by loading admin scripts & styles and adding a
 	 * settings page and menu.
 	 *
-	 * @since     1.0.0
+	 *
 	 */
 	private function __construct() {
-
 		/*
 		 * Call $plugin_slug from public plugin class.
 		 */
@@ -49,7 +47,6 @@ class RplusWpRatingAdmin {
 		$this->plugin_slug = $plugin->get_plugin_slug();
 
 		// Load admin style sheet and JavaScript.
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
 		// Add the options page and menu item.
@@ -71,7 +68,6 @@ class RplusWpRatingAdmin {
 		add_filter( 'pre_get_posts', array( $this, 'pre_get_posts' ) );
 
 		add_filter( 'get_meta_sql', array( $this, 'change_columns_order_sql' ) );
-
 	}
 
 	/**
@@ -113,7 +109,7 @@ class RplusWpRatingAdmin {
 	 *
 	 * @param  array $columns Array of default columns
 	 *
-	 * @return array    $columns    Modified array of columns
+	 * @return array
 	 */
 	public function admin_edit_columns( $columns ) {
 
@@ -130,7 +126,7 @@ class RplusWpRatingAdmin {
 	 * @param  string $column  Name of the column defined in $this->admin_edit_columns();
 	 * @param  int    $post_id WP_Post ID
 	 *
-	 * @return string               Content for the columns
+	 * @return string
 	 */
 	public function admin_manage_columns( $column, $post_id ) {
 
@@ -216,8 +212,7 @@ class RplusWpRatingAdmin {
 	/**
 	 * Return an instance of this class.
 	 *
-	 * @since     1.0.0
-	 * @return    object    A single instance of this class.
+	 * @return RplusWpRatingAdmin
 	 */
 	public static function get_instance() {
 
@@ -230,29 +225,7 @@ class RplusWpRatingAdmin {
 	}
 
 	/**
-	 * Register and enqueue admin-specific style sheet.
-	 *
-	 * @since     1.0.0
-	 * @return    null    Return early if no settings page is registered.
-	 */
-	public function enqueue_admin_styles() {
-
-		if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
-			return;
-		}
-
-		$screen = get_current_screen();
-		if ( $this->plugin_screen_hook_suffix == $screen->id ) {
-			wp_enqueue_style( $this->plugin_slug . '-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), RplusWpRating::VERSION );
-		}
-
-	}
-
-	/**
 	 * Register and enqueue admin-specific JavaScript.
-	 *
-	 * @since     1.0.0
-	 * @return    null    Return early if no settings page is registered.
 	 */
 	public function enqueue_admin_scripts() {
 
@@ -262,6 +235,7 @@ class RplusWpRatingAdmin {
 
 		$screen = get_current_screen();
 		if ( $this->plugin_screen_hook_suffix == $screen->id ) {
+			wp_enqueue_style( $this->plugin_slug . '-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), RplusWpRating::VERSION );
 			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), RplusWpRating::VERSION );
 		}
 
@@ -270,7 +244,7 @@ class RplusWpRatingAdmin {
 	/**
 	 * Register the administration menu for this plugin into the WordPress Dashboard menu.
 	 *
-	 * @since    1.0.0
+	 * @since 1.0.0
 	 */
 	public function add_plugin_admin_menu() {
 
@@ -290,12 +264,10 @@ class RplusWpRatingAdmin {
 	/**
 	 * Render the settings page for this plugin.
 	 *
-	 * @since    1.0.0
+	 * @since 1.0.0
 	 */
 	public function display_plugin_admin_page() {
-
 		include_once( 'views/admin.php' );
-
 	}
 
 	/**
@@ -304,7 +276,6 @@ class RplusWpRatingAdmin {
 	 * @since   1.0.0
 	 */
 	public function add_plugin_admin_options() {
-
 		register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_title' );
 		register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_btn_label_positive' );
 		register_setting( $this->plugin_slug . '-options', 'rplus_ratings_options_btn_label_negative' );
@@ -320,7 +291,6 @@ class RplusWpRatingAdmin {
 		 * Check for Polylang, when exist, make the strings translatable here
 		 */
 		if ( function_exists( 'pll_register_string' ) ) {
-
 			pll_register_string( 'rplus_ratings_title', get_option( 'rplus_ratings_options_title' ), 'required-wp-rating' );
 			pll_register_string( 'rplus_ratings_btn_positive', get_option( 'rplus_ratings_options_btn_label_positive' ), 'required-wp-rating' );
 			pll_register_string( 'rplus_ratings_btn_negative', get_option( 'rplus_ratings_options_btn_label_negative' ), 'required-wp-rating' );
@@ -331,7 +301,6 @@ class RplusWpRatingAdmin {
 			pll_register_string( 'rplus_ratings_feedback_alreadydone', 'You\'ve already made your rating for this page.', 'required-wp-rating' );
 			pll_register_string( 'rplus_ratings_feedback_thx', 'Thank you for the feedback.', 'required-wp-rating' );
 			pll_register_string( 'rplus_ratings_feedback_reply_descr', get_option( 'rplus_ratings_options_feedback_reply_descr' ), 'required-wp-rating' );
-
 		}
 
 		add_settings_section(
@@ -509,31 +478,30 @@ class RplusWpRatingAdmin {
 			$this->plugin_slug,
 			'rplus_ratings_options_feedback'
 		);
-
-
 	}
 
 	/**
 	 * Add settings action link to the plugins page.
 	 *
-	 * @since    1.0.0
+	 * @since 1.0.0
+	 *
+	 * @param array $links Plugin action links.
+	 *
+	 * @return array
 	 */
 	public function add_action_links( $links ) {
-
 		return array_merge(
 			array(
 				'settings' => '<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings', $this->plugin_slug ) . '</a>'
 			),
 			$links
 		);
-
 	}
 
 	/**
 	 * Add meta boxes to activated post_types
 	 */
 	public function add_meta_boxes() {
-
 		// get post_type_select option and check for current post_type
 		$selected = get_option( 'rplus_ratings_options_posttypes_select' );
 
@@ -557,16 +525,14 @@ class RplusWpRatingAdmin {
 			);
 
 		}
-
 	}
 
 	/**
 	 * Output meta box content with rating statistics on backend edit forms
 	 *
-	 * @param $post
+	 * @param WP_Post $post Post object.
 	 */
 	public function output_meta_box( $post ) {
-
 		$positives = get_post_meta( $post->ID, 'rplus_ratings_positive', true );
 		$negatives = get_post_meta( $post->ID, 'rplus_ratings_negative', true );
 
@@ -622,7 +588,5 @@ class RplusWpRatingAdmin {
 
 		/* Restore original Post Data */
 		wp_reset_postdata();
-
 	}
-
 }
