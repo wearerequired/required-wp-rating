@@ -1,6 +1,6 @@
 {
   "name": "required-wp-rating",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Make ratings on all types of wordpress posts and pages. Includes a widget and a Shortcode.",
   "private": true,
   "repository": {
